@@ -67,7 +67,7 @@ function Profile() {
                 alt=""
               />
             </div>
-            <h3>Welcome {userDetails.firstName}</h3>
+            <h3>{userDetails.firstName}</h3>
             <div>
               <p>Email: {userDetails.email}</p>
             </div>
