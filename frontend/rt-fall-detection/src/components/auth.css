@@ -1,0 +1,117 @@
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+  }
+  
+  .auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url('bg.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .auth-inner {
+    background-color: rgba(18, 18, 18, 0.8);
+    padding: 40px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  h3 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .form-control {
+    background-color: #333;
+    border: none;
+    color: #fff;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+  }
+  
+  .form-control:focus {
+    background-color: #444;
+    box-shadow: none;
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0b5ed7;
+  }
+  
+  .forgot-password,
+  .forgot-password a {
+    text-align: center;
+    font-size: 13px;
+    padding-top: 10px;
+    color: #7f7d7d;
+    margin: 0;
+  }
+  
+  .forgot-password a {
+    color: #167bff;
+  }
+  
+  .social-login {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .google-btn {
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    color: #757575;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .google-btn:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .google-icon {
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+  }
+  
+  .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #444;
+  }
+  
+  .divider span {
+    padding: 0 10px;
+    color: #7f7d7d;
+  }
