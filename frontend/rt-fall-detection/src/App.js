@@ -14,7 +14,7 @@ import ResetPassword from "./components/reset-password";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Profile from "./components/profile";
-import Dashboard from "./components/dashboard"; // Import the Dashboard component
+import Dashboard from "./components/dashboard";
 import { auth } from "./components/firebase";
 
 function App() {
@@ -23,26 +23,41 @@ function App() {
     auth.onAuthStateChanged((user) => {
       setUser(user);
     });
-  });
+  }, []);
+
   return (
     <Router>
       <div className="App">
-        <div className="auth-wrapper">
-          <div className="auth-inner">
-            <Routes>
-              <Route
-                path="/"
-                element={user ? <Navigate to="/dashboard" /> : <Login />}
-              />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<SignUp />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} /> {/* Add this line */}
-            </Routes>
-            <ToastContainer />
-          </div>
-        </div>
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <Navigate to="/dashboard" /> : <Login />}
+          />
+          <Route path="/login" element={
+            <div className="auth-wrapper">
+              <div className="auth-inner">
+                <Login />
+              </div>
+            </div>
+          } />
+          <Route path="/register" element={
+            <div className="auth-wrapper">
+              <div className="auth-inner">
+                <SignUp />
+              </div>
+            </div>
+          } />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/reset-password" element={
+            <div className="auth-wrapper">
+              <div className="auth-inner">
+                <ResetPassword />
+              </div>
+            </div>
+          } />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+        <ToastContainer />
       </div>
     </Router>
   );

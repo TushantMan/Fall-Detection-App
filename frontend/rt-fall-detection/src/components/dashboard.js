@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Camera, Database, Search, Bell, Settings, User } from 'lucide-react';
+import { Camera, Database, Search, Bell, Settings, User, Maximize, Minimize } from 'lucide-react';// Import Minimize component
 import { useNavigate } from 'react-router-dom';
 import "./dashboard.css";
 
@@ -28,73 +28,156 @@ const recordedData = [
   { id: 'FL-0014', date: '15.2.22', time: '13:01:21', area: 'Front View' },
 ];
 
-const Dashboard = () => {
-    const [selectedCamera, setSelectedCamera] = useState('Camera 4');
+const cameraFeeds = {
+    'Camera 1': 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
+    'Camera 2': 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4',
+    'Camera 3': 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
+    'Camera 4': 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4'
+  };
+  
+  const Dashboard = () => {
+    const [selectedCamera, setSelectedCamera] = useState('Camera 1');
+    const [currentTime, setCurrentTime] = useState(new Date());
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const navigate = useNavigate();
+    const videoRef = useRef(null);
+    const videoContainerRef = useRef(null);
 
     const handleProfileClick = () => {
         navigate('/profile');
     };
-  
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.load();
+        }
+    }, [selectedCamera]);
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const formatDate = (date) => {
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit' 
+        });
+    };
+
+    const formatTime = (date) => {
+        return date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+        });
+    };
+
+    const toggleFullScreen = () => {
+        if (!document.fullscreenElement) {
+            if (videoContainerRef.current.requestFullscreen) {
+                videoContainerRef.current.requestFullscreen();
+            } else if (videoContainerRef.current.mozRequestFullScreen) { // Firefox
+                videoContainerRef.current.mozRequestFullScreen();
+            } else if (videoContainerRef.current.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                videoContainerRef.current.webkitRequestFullscreen();
+            } else if (videoContainerRef.current.msRequestFullscreen) { // IE/Edge
+                videoContainerRef.current.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) { // Firefox
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { // IE/Edge
+                document.msExitFullscreen();
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            setIsFullScreen(!!document.fullscreenElement);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullScreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullScreenChange);
+
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullScreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
+            document.removeEventListener('mozfullscreenchange', handleFullScreenChange);
+            document.removeEventListener('MSFullscreenChange', handleFullScreenChange);
+        };
+    }, []);
+
     return (
         <div className="dashboard">
             {/* Sidebar */}
             <div className="sidebar">
-                <Camera className="sidebar-icon" />
+                <Camera className="sidebar-icon active" />
                 <Database className="sidebar-icon" />
                 <Search className="sidebar-icon" />
                 <div className="sidebar-icon alert-icon">
                     <Bell />
-                    <span className="alert-badge">3</span>
+                    <span className="alert-badge"></span>
                 </div>
                 <Settings className="sidebar-icon" />
-                <User className="sidebar-icon profile" onClick={handleProfileClick} />
+                <User className="sidebar-icon" onClick={handleProfileClick} />
             </div>
-  
-        {/* Main content */}
-        <div className="main-content">
-          <h1 className="dashboard-title">Dashboard</h1>
-  
-          {/* Camera selection */}
-          <div className="camera-controls">
-            <span>Watching</span>
-            <select>
-              <option>List</option>
-            </select>
-            <select>
-              <option>All Cameras</option>
-            </select>
-          </div>
-  
-          <div className="camera-section">
-            {/* Camera list */}
-            <div className="camera-list">
-              {['Camera 1', 'Camera 2', 'Camera 3', 'Camera 4'].map((camera) => (
-                <div 
-                  key={camera} 
-                  className={`camera-item ${camera === selectedCamera ? 'active' : ''}`}
-                  onClick={() => setSelectedCamera(camera)}
-                >
-                  {camera}
-                  {camera === selectedCamera && (
-                    <div className="camera-views">
-                      <div>Front View</div>
-                      <div>Back View</div>
-                      <div>Side View</div>
-                    </div>
-                  )}
+
+            {/* Main content */}
+            <div className="main-content">
+                <h1 className="dashboard-title">Dashboard</h1>
+
+                {/* Camera selection */}
+                <div className="camera-controls">
+                    <h5>Watching</h5>
+                    <select value={selectedCamera} onChange={(e) => setSelectedCamera(e.target.value)}>
+                        {Object.keys(cameraFeeds).map(camera => (
+                            <option key={camera} value={camera}>{camera}</option>
+                        ))}
+                    </select>
                 </div>
-              ))}
-            </div>
-  
-            {/* Camera feed */}
-            <div className="camera-feed">
-              <img src="/api/placeholder/800/450" alt="Camera Feed" />
-              <div className="camera-overlay">Camera 4 • Front View</div>
-              <div className="time-overlay">15/Aug/2024 01:00 PM</div>
-              <div className="fall-detection">Fall Detected</div>
-            </div>
-          </div>
+
+                <div className="camera-section">
+                    {/* Camera list */}
+                    <div className="camera-list">
+                        {Object.keys(cameraFeeds).map((camera) => (
+                            <div 
+                                key={camera} 
+                                className={`camera-item ${camera === selectedCamera ? 'active' : ''}`}
+                                onClick={() => setSelectedCamera(camera)}
+                            >
+                                {camera}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Camera feed */}
+                    <div className="camera-feed" ref={videoContainerRef}>
+                        <video ref={videoRef} width="100%" height="auto" autoPlay loop muted>
+                            <source src={cameraFeeds[selectedCamera]} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                        <div className="camera-overlay">{selectedCamera}</div>
+                        <div className="time-overlay">
+                            <div>{formatDate(currentTime)}</div>
+                            <div>{formatTime(currentTime)}</div>
+                        </div>
+                        <div className="fall-detection">Fall Detected</div>
+                        <button className="fullscreen-button" onClick={toggleFullScreen}>
+                            {isFullScreen ? <Minimize size={24} /> : <Maximize size={24} />}
+                        </button>
+                    </div>
+                </div>
   
           {/* Details and Recorded Data */}
           <div className="dashboard-bottom">
@@ -129,9 +212,11 @@ const Dashboard = () => {
               <div className="data-header">
                 <span>5,000 records</span>
                 <span>No of row in table: 5</span>
+                <div className='camera-controls'>
                 <select>
                   <option>Sort by</option>
                 </select>
+                </div>
               </div>
               <table>
                 <thead>

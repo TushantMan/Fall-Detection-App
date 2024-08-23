@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { Camera, Database, Search, Bell, Settings, User} from 'lucide-react';
+import "./auth.css";
+import "./dashboard.css"; 
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
+  const navigate = useNavigate(); // Add this line to define the 'navigate' variable
   const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
       console.log(user);
@@ -31,33 +36,51 @@ function Profile() {
       console.error("Error logging out:", error.message);
     }
   }
+  const handleDashboardNavigation = () => {
+    navigate("/dashboard");
+  };
+
   return (
-    <div>
-      {userDetails ? (
-        <>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <img
-              src={userDetails.photo}
-              width={"40%"}
-              style={{ borderRadius: "50%" }}
-              alt=""
-            />
-            
-          </div>
-          <h3>Welcome {userDetails.firstName}</h3>
-          <div>
-            <p>Email: {userDetails.email}</p>
-            <p>First Name: {userDetails.firstName}</p>
-            {/* <p>Last Name: {userDetails.lastName}</p> */}
-          </div>
-          <button className="btn btn-primary" onClick={handleLogout}>
-            Logout
-          </button>
-        </>
-      ) : (
-        <p>Loading...</p>
-      )}
+    <div className="dashboard">
+      {/* Sidebar */}
+      <div className="sidebar">
+        <Camera className="sidebar-icon" onClick={handleDashboardNavigation} />
+        <Database className="sidebar-icon" />
+        <Search className="sidebar-icon" />
+        <div className="sidebar-icon alert-icon">
+          <Bell />
+          <span className="alert-badge"></span>
+        </div>
+        <Settings className="sidebar-icon" />
+        <User className="sidebar-icon active" />
+      </div>
+
+      {/* Main content */}
+      <div className="auth-inner">
+        {userDetails ? (
+          <>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <img
+                src={userDetails.photo}
+                width={"40%"}
+                style={{ borderRadius: "50%" }}
+                alt=""
+              />
+            </div>
+            <h3>Welcome {userDetails.firstName}</h3>
+            <div>
+              <p>Email: {userDetails.email}</p>
+            </div>
+            <button className="btn btn-primary" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
     </div>
   );
 }
+
 export default Profile;
