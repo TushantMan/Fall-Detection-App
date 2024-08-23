@@ -172,7 +172,6 @@ const cameraFeeds = {
                             <div>{formatDate(currentTime)}</div>
                             <div>{formatTime(currentTime)}</div>
                         </div>
-                        <div className="fall-detection">Fall Detected</div>
                         <button className="fullscreen-button" onClick={toggleFullScreen}>
                             {isFullScreen ? <Minimize size={24} /> : <Maximize size={24} />}
                         </button>
