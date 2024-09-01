@@ -15,6 +15,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Profile from "./components/profile";
 import Dashboard from "./components/dashboard";
+import Search from './components/search';
 import { auth } from "./components/firebase";
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
             </div>
           } />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/search" element={<Search />} />
         </Routes>
         <ToastContainer />
       </div>

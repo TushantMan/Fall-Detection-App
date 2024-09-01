@@ -1,262 +1,282 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Camera, Database, Search, Bell, Settings, User, Maximize, Minimize } from 'lucide-react';// Import Minimize component
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "./dashboard.css";
 
-
-const fallInsightsData = [
-  { name: 'Jan', value: 10 },
-  { name: 'Feb', value: 15 },
-  { name: 'Mar', value: 40 },
-  { name: 'Apr', value: 30 },
-  { name: 'May', value: 45 },
-  { name: 'Jun', value: 35 },
-  { name: 'Jul', value: 50 },
-  { name: 'Aug', value: 40 },
-  { name: 'Sep', value: 45 },
-  { name: 'Oct', value: 35 },
-  { name: 'Nov', value: 25 },
-  { name: 'Dec', value: 30 },
+// Sample device data
+const devices = [
+  { id: 1, name: 'Device 1', deviceId: 'D001', location: 'Room 101', status: 'Active' },
+  { id: 2, name: 'Device 2', deviceId: 'D002', location: 'Room 102', status: 'Inactive' },
+  { id: 3, name: 'Device 3', deviceId: 'D003', location: 'Room 103', status: 'Maintenance' },
+  { id: 4, name: 'Device 4', deviceId: 'D004', location: 'Room 104', status: 'Active' },
 ];
 
-const recordedData = [
-  { id: 'FL-0010', date: '15.2.22', time: '13:01:21', area: 'Front View' },
-  { id: 'FL-0011', date: '15.2.22', time: '13:01:21', area: 'Back View' },
-  { id: 'FL-0012', date: '15.2.22', time: '13:01:21', area: 'Side View' },
-  { id: 'FL-0013', date: '15.2.22', time: '13:01:21', area: 'Back View' },
-  { id: 'FL-0014', date: '15.2.22', time: '13:01:21', area: 'Front View' },
-];
+// Sample data for each device
+const deviceData = {
+  1: {
+    lineChart: [
+      { name: 'Jan', value: 10 },
+      { name: 'Feb', value: 15 },
+      { name: 'Mar', value: 20 },
+      { name: 'Apr', value: 25 },
+      { name: 'May', value: 30 },
+      { name: 'Jun', value: 35 },
+    ],
+    pieChart: [
+      { name: 'Category A', value: 400 },
+      { name: 'Category B', value: 300 },
+      { name: 'Category C', value: 200 },
+      { name: 'Category D', value: 100 },
+    ],
+    tableData: [
+      { id: 'FL1-0001', date: '15.1.22', time: '13:01:21', area: 'Area 1' },
+      { id: 'FL1-0002', date: '16.1.22', time: '14:02:22', area: 'Area 2' },
+      { id: 'FL1-0003', date: '17.1.22', time: '15:03:23', area: 'Area 3' },
+    ],
+  },
+  2: {
+    lineChart: [
+      { name: 'Jan', value: 20 },
+      { name: 'Feb', value: 25 },
+      { name: 'Mar', value: 40 },
+      { name: 'Apr', value: 15 },
+      { name: 'May', value: 20 },
+      { name: 'Jun', value: 45 },
+    ],
+    pieChart: [
+      { name: 'Category A', value: 300 },
+      { name: 'Category B', value: 400 },
+      { name: 'Category C', value: 300 },
+      { name: 'Category D', value: 200 },
+    ],
+    tableData: [
+      { id: 'FL2-0004', date: '18.1.22', time: '16:04:24', area: 'Area 4' },
+      { id: 'FL2-0005', date: '19.1.22', time: '17:05:25', area: 'Area 5' },
+      { id: 'FL2-0006', date: '20.1.22', time: '18:06:26', area: 'Area 6' },
+    ],
+  },
+  3: {
+    lineChart: [
+      { name: 'Jan', value: 40 },
+      { name: 'Feb', value: 30 },
+      { name: 'Mar', value: 25 },
+      { name: 'Apr', value: 20 },
+      { name: 'May', value: 15 },
+      { name: 'Jun', value: 0 },
+    ],
+    pieChart: [
+      { name: 'Category A', value: 200 },
+      { name: 'Category B', value: 300 },
+      { name: 'Category C', value: 400 },
+      { name: 'Category D', value: 300 },
+    ],
+    tableData: [
+      { id: 'FL3-0007', date: '21.1.22', time: '19:07:27', area: 'Area 7' },
+      { id: 'FL3-0008', date: '22.1.22', time: '20:08:28', area: 'Area 8' },
+      { id: 'FL3-0009', date: '23.1.22', time: '21:09:29', area: 'Area 9' },
+    ],
+  },
+  4: {
+    lineChart: [
+      { name: 'Jan', value: 5 },
+      { name: 'Feb', value: 10 },
+      { name: 'Mar', value: 15 },
+      { name: 'Apr', value: 20 },
+      { name: 'May', value: 25 },
+      { name: 'Jun', value: 30 },
+    ],
+    pieChart: [
+      { name: 'Category A', value: 100 },
+      { name: 'Category B', value: 200 },
+      { name: 'Category C', value: 300 },
+      { name: 'Category D', value: 400 },
+    ],
+    tableData: [
+      { id: 'FL4-0009', date: '26.1.22', time: '00:12:32', area: 'Area 12' },
+      { id: 'FL4-0010', date: '24.1.22', time: '22:10:30', area: 'Area 10' },
+      { id: 'FL4-0011', date: '25.1.22', time: '23:11:31', area: 'Area 11' },
+      { id: 'FL4-0012', date: '26.1.22', time: '00:12:32', area: 'Area 12' },
+    ],
+  },
+};
 
-const cameraFeeds = {
-    'Camera 1': 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
-    'Camera 2': 'https://samplelib.com/lib/preview/mp4/sample-10s.mp4',
-    'Camera 3': 'https://samplelib.com/lib/preview/mp4/sample-15s.mp4',
-    'Camera 4': 'https://samplelib.com/lib/preview/mp4/sample-20s.mp4'
-  };
-  
-  const Dashboard = () => {
-    const [selectedCamera, setSelectedCamera] = useState('Camera 1');
-    const [currentTime, setCurrentTime] = useState(new Date());
-    const [isFullScreen, setIsFullScreen] = useState(false);
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+const Dashboard = () => {
+    const [selectedDevice, setSelectedDevice] = useState(devices[0]);
+    const [currentData, setCurrentData] = useState(deviceData[1]);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const navigate = useNavigate();
-    const videoRef = useRef(null);
-    const videoContainerRef = useRef(null);
 
     const handleProfileClick = () => {
         navigate('/profile');
     };
 
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
+
     useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.load();
+        setCurrentData(deviceData[selectedDevice.id]);
+    }, [selectedDevice]);
+
+    const sortData = (key) => {
+        let direction = 'ascending';
+        if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+            direction = 'descending';
         }
-    }, [selectedCamera]);
+        setSortConfig({ key, direction });
+    };
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+    const getSortedData = (data) => {
+        if (!sortConfig.key) return data;
 
-    const formatDate = (date) => {
-        return date.toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: '2-digit', 
-            day: '2-digit' 
+        return [...data].sort((a, b) => {
+            if (a[sortConfig.key] < b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+            }
+            if (a[sortConfig.key] > b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+            }
+            return 0;
         });
     };
 
-    const formatTime = (date) => {
-        return date.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        });
-    };
-
-    const toggleFullScreen = () => {
-        if (!document.fullscreenElement) {
-            if (videoContainerRef.current.requestFullscreen) {
-                videoContainerRef.current.requestFullscreen();
-            } else if (videoContainerRef.current.mozRequestFullScreen) { // Firefox
-                videoContainerRef.current.mozRequestFullScreen();
-            } else if (videoContainerRef.current.webkitRequestFullscreen) { // Chrome, Safari and Opera
-                videoContainerRef.current.webkitRequestFullscreen();
-            } else if (videoContainerRef.current.msRequestFullscreen) { // IE/Edge
-                videoContainerRef.current.msRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.mozCancelFullScreen) { // Firefox
-                document.mozCancelFullScreen();
-            } else if (document.webkitExitFullscreen) { // Chrome, Safari and Opera
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { // IE/Edge
-                document.msExitFullscreen();
-            }
-        }
-    };
-
-    useEffect(() => {
-        const handleFullScreenChange = () => {
-            setIsFullScreen(!!document.fullscreenElement);
-        };
-
-        document.addEventListener('fullscreenchange', handleFullScreenChange);
-        document.addEventListener('webkitfullscreenchange', handleFullScreenChange);
-        document.addEventListener('mozfullscreenchange', handleFullScreenChange);
-        document.addEventListener('MSFullscreenChange', handleFullScreenChange);
-
-        return () => {
-            document.removeEventListener('fullscreenchange', handleFullScreenChange);
-            document.removeEventListener('webkitfullscreenchange', handleFullScreenChange);
-            document.removeEventListener('mozfullscreenchange', handleFullScreenChange);
-            document.removeEventListener('MSFullscreenChange', handleFullScreenChange);
-        };
-    }, []);
+    const sortedData = getSortedData(currentData.tableData);
 
     return (
         <div className="dashboard">
+            {/* Hamburger menu for mobile */}
+            <button className="hamburger-menu" onClick={toggleSidebar}>
+                <Menu />
+            </button>
+
+            {/* Sidebar overlay */}
+            {isSidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+
             {/* Sidebar */}
-            <div className="sidebar">
-                <Camera className="sidebar-icon active" />
-                <Database className="sidebar-icon" />
-                <Search className="sidebar-icon" />
+            <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+                <Database className="sidebar-icon active" />
+                <Search className="sidebar-icon" onClick={() => navigate('/search')} />
                 <div className="sidebar-icon alert-icon">
                     <Bell />
-                    <span className="alert-badge"></span>
+                    
                 </div>
                 <Settings className="sidebar-icon" />
-                <User className="sidebar-icon" onClick={handleProfileClick} />
+                <User className="sidebar-icon profile" onClick={handleProfileClick} />
             </div>
 
             {/* Main content */}
             <div className="main-content">
                 <h1 className="dashboard-title">Dashboard</h1>
 
-                {/* Camera selection */}
-                <div className="camera-controls">
-                    <h5>Watching</h5>
-                    <select value={selectedCamera} onChange={(e) => setSelectedCamera(e.target.value)}>
-                        {Object.keys(cameraFeeds).map(camera => (
-                            <option key={camera} value={camera}>{camera}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="camera-section">
-                    {/* Camera list */}
-                    <div className="camera-list">
-                        {Object.keys(cameraFeeds).map((camera) => (
+                <div className="dashboard-content">
+                    {/* Device list */}
+                    <div className="device-list">
+                        <h2>Devices</h2>
+                        {devices.map((device) => (
                             <div 
-                                key={camera} 
-                                className={`camera-item ${camera === selectedCamera ? 'active' : ''}`}
-                                onClick={() => setSelectedCamera(camera)}
+                                key={device.id} 
+                                className={`device-item ${device.id === selectedDevice.id ? 'active' : ''}`}
+                                onClick={() => setSelectedDevice(device)}
                             >
-                                {camera}
+                                {device.name}
                             </div>
                         ))}
                     </div>
 
-                    {/* Camera feed */}
-                    <div className="camera-feed" ref={videoContainerRef}>
-                        <video ref={videoRef} width="100%" height="auto" autoPlay loop muted>
-                            <source src={cameraFeeds[selectedCamera]} type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
-                        <div className="camera-overlay">{selectedCamera}</div>
-                        <div className="time-overlay">
-                            <div>{formatDate(currentTime)}</div>
-                            <div>{formatTime(currentTime)}</div>
+                    {/* Device Information */}
+                    <div className="device-info">
+                        <h2>Device Information</h2>
+                        <div className="info-item">
+                            <span className="info-label">Device ID:</span>
+                            <span className="info-value">{selectedDevice.deviceId}</span>
                         </div>
-                        <button className="fullscreen-button" onClick={toggleFullScreen}>
-                            {isFullScreen ? <Minimize size={24} /> : <Maximize size={24} />}
-                        </button>
+                        <div className="info-item">
+                            <span className="info-label">Location:</span>
+                            <span className="info-value">{selectedDevice.location}</span>
+                        </div>
+                        <div className="info-item">
+                            <span className="info-label">Status:</span>
+                            <span className={`info-value status-${selectedDevice.status.toLowerCase()}`}>
+                                {selectedDevice.status}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Data visualizations */}
+                    <div className="data-visualizations">
+                        {/* Line Chart */}
+                        <div className="chart-container">
+                            <h2>{selectedDevice.name} Line Chart</h2>
+                            <ResponsiveContainer width="100%" height={200}>
+                                <LineChart data={currentData.lineChart}>
+                                    <XAxis dataKey="name" stroke="#ffffff" />
+                                    <YAxis stroke="#ffffff" />
+                                    <Tooltip />
+                                    <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* Pie Chart */}
+                        <div className="chart-container">
+                            <h2>{selectedDevice.name} Pie Chart</h2>
+                            <ResponsiveContainer width="100%" height={200}>
+                                <PieChart>
+                                    <Pie
+                                        data={currentData.pieChart}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {currentData.pieChart.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        {/* Table */}
+                        <div className="table-container">
+                            <h2>{selectedDevice.name} Table Data</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        {['id', 'date', 'time', 'area'].map((key) => (
+                                            <th key={key} onClick={() => sortData(key)}>
+                                                {key.charAt(0).toUpperCase() + key.slice(1)}
+                                                {sortConfig.key === key && (
+                                                    sortConfig.direction === 'ascending' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                                                )}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sortedData.map((row) => (
+                                        <tr key={row.id}>
+                                            <td>{row.id}</td>
+                                            <td>{row.date}</td>
+                                            <td>{row.time}</td>
+                                            <td>{row.area}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-  
-          {/* Details and Recorded Data */}
-          <div className="dashboard-bottom">
-            <div className="details-section">
-              <div className="details-card">
-                <h3>Details</h3>
-                <div className="stats">
-                  <div className="stat-item">
-                    <div className="circular-progress" style={{'--progress': '75deg'}} data-progress="10">
-                    </div>
-                    <div className="stat-label">Increase by 10<br/>Last 4 weeks</div>
-                  </div>
-                  <div className="stat-item">
-                    <div className="circular-progress" style={{'--progress': '270deg'}} data-progress="75">
-                    </div>
-                    <div className="stat-label">Increase by 75<br/>Last 6 months</div>
-                  </div>
-                </div>
-              </div>
-              <div className="details-card">
-                <h3>Weekly Falls</h3>
-                <div className="stat-value">15</div>
-                <div className="weekly-falls">
-                  {[3, 5, 2, 7, 4, 6, 8].map((value, index) => (
-                    <div key={index} className="bar" style={{ height: `${value * 10}%` }}></div>
-                  ))}
-                </div>
-              </div>
             </div>
-            <div className="recorded-data">
-              <h3>Recorded Data</h3>
-              <div className="data-header">
-                <span>5,000 records</span>
-                <span>No of row in table: 5</span>
-                <div className='camera-controls'>
-                <select>
-                  <option>Sort by</option>
-                </select>
-                </div>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>No.</th>
-                    <th>Incident No.</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Area</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recordedData.map((record, index) => (
-                    <tr key={record.id}>
-                      <td>{index + 1}</td>
-                      <td>{record.id}</td>
-                      <td>{record.date}</td>
-                      <td>{record.time}</td>
-                      <td>{record.area}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-  
-          {/* Fall Insights */}
-          <div className="fall-insights">
-            <h3>Fall Insights</h3>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={fallInsightsData}>
-                <XAxis dataKey="name" stroke="#ffffff" />
-                <YAxis stroke="#ffffff" />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
         </div>
-      </div>
     );
-  };
-  
-  export default Dashboard;
+};
+
+export default Dashboard;
