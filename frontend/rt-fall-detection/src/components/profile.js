@@ -2,17 +2,18 @@ import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { Camera, Database, Search, Bell, Settings, User} from 'lucide-react';
+import { Database, Search, Bell, Settings, User, Menu } from 'lucide-react';
 import "./auth.css";
-import "./dashboard.css"; 
+import "./dashboard.css";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
-  const navigate = useNavigate(); // Add this line to define the 'navigate' variable
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
   const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
       console.log(user);
-
       const docRef = doc(db, "Users", user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -23,6 +24,7 @@ function Profile() {
       }
     });
   };
+
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -36,20 +38,31 @@ function Profile() {
       console.error("Error logging out:", error.message);
     }
   }
+
   const handleDashboardNavigation = () => {
     navigate("/dashboard");
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <div className="dashboard">
+      {/* Hamburger menu for mobile */}
+      <button className="hamburger-menu" onClick={toggleSidebar}>
+        <Menu />
+      </button>
+
+      {/* Sidebar overlay */}
+      {isSidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+
       {/* Sidebar */}
-      <div className="sidebar">
-        <Camera className="sidebar-icon" onClick={handleDashboardNavigation} />
-        <Database className="sidebar-icon" />
+      <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
+        <Database className="sidebar-icon" onClick={handleDashboardNavigation} />
         <Search className="sidebar-icon" />
         <div className="sidebar-icon alert-icon">
           <Bell />
-          <span className="alert-badge"></span>
         </div>
         <Settings className="sidebar-icon" />
         <User className="sidebar-icon active" />
