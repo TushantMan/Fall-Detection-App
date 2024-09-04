@@ -292,3 +292,37 @@ th {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
 }
+.generate-data-btn {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.generate-data-btn:hover {
+  background-color: #45a049;
+}
+
+.generate-data-btn:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+}
+
+/* Adjust the main content to accommodate the new button */
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-title {
+  margin-bottom: 10px;
+}
