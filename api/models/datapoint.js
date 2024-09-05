@@ -18,7 +18,15 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
     },
     value: {
-      type: Sequelize.FLOAT,
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    },
+    category: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    label: {
+      type: Sequelize.INTEGER,
       allowNull: false,
     },
     area: {

@@ -1,46 +1,65 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Database, Bell, Settings, User, Menu } from 'lucide-react';
+import axios from 'axios';
+import { NotificationContext } from '../context/notificationContext';
 import './search.css';
-
-// Dummy data for devices
-const dummyDevices = [
-    { id: 1, name: 'Device 1' },
-    { id: 2, name: 'Device 2' },
-    { id: 3, name: 'Device 3' },
-    { id: 4, name: 'Device 4' },
-];
-
-// Dummy data for device table data
-const dummyDeviceData = {
-    1: [
-        { id: 'FL-0001', date: '15.1.22', time: '13:01:21', area: 'Area 1' },
-        { id: 'FL-0002', date: '16.1.22', time: '14:02:22', area: 'Area 2' },
-        { id: 'FL-0003', date: '17.1.22', time: '15:03:23', area: 'Area 3' },
-    ],
-    2: [
-        { id: 'FL-0004', date: '18.1.22', time: '16:04:24', area: 'Area 4' },
-        { id: 'FL-0005', date: '19.1.22', time: '17:05:25', area: 'Area 5' },
-        { id: 'FL-0006', date: '20.1.22', time: '18:06:26', area: 'Area 6' },
-    ],
-    3: [
-        { id: 'FL-0007', date: '21.1.22', time: '19:07:27', area: 'Area 7' },
-        { id: 'FL-0008', date: '22.1.22', time: '20:08:28', area: 'Area 8' },
-        { id: 'FL-0009', date: '23.1.22', time: '21:09:29', area: 'Area 9' },
-    ],
-    4: [
-        { id: 'FL-0010', date: '24.1.22', time: '22:10:30', area: 'Area 10' },
-        { id: 'FL-0011', date: '25.1.22', time: '23:11:31', area: 'Area 11' },
-        { id: 'FL-0012', date: '26.1.22', time: '00:12:32', area: 'Area 12' },
-    ],
-};
 
 const Search = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedDevice, setSelectedDevice] = useState('all');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [devices, setDevices] = useState([]);
+    const [allDataPoints, setAllDataPoints] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const {notificationCount } = useContext(NotificationContext);
     const navigate = useNavigate();
+
+    const fetchDevices = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await axios.get('http://localhost:5001/api/devices');
+            setDevices(response.data);
+        } catch (error) {
+            console.error('Error fetching devices:', error);
+            setError('Failed to fetch devices. Please try again later.');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const fetchAllDataPoints = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const response = await axios.get('http://localhost:5001/api/datapoints');
+            setAllDataPoints(response.data);
+        } catch (error) {
+            console.error('Error fetching data points:', error);
+            setError('Failed to fetch data. Please try again later.');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const performSearch = useCallback((term, deviceId) => {
+        let dataToSearch = allDataPoints;
+        if (deviceId !== 'all') {
+            dataToSearch = allDataPoints.filter(point => point.deviceId.toString() === deviceId);
+        }
+
+        return dataToSearch.filter(item =>
+            Object.values(item).some(value =>
+                value.toString().toLowerCase().includes(term.toLowerCase())
+            )
+        );
+    }, [allDataPoints]);
+
+    useEffect(() => {
+        fetchDevices();
+        fetchAllDataPoints();
+    }, [fetchDevices, fetchAllDataPoints]);
 
     useEffect(() => {
         if (searchTerm) {
@@ -49,28 +68,19 @@ const Search = () => {
         } else {
             setSearchResults([]);
         }
-    }, [searchTerm, selectedDevice]);
-
-    const performSearch = (term, device) => {
-        let allData = [];
-        if (device === 'all') {
-            Object.values(dummyDeviceData).forEach(data => {
-                allData = [...allData, ...data];
-            });
-        } else {
-            allData = dummyDeviceData[device];
-        }
-
-        return allData.filter(item =>
-            Object.values(item).some(value =>
-                value.toString().toLowerCase().includes(term.toLowerCase())
-            )
-        );
-    };
+    }, [searchTerm, selectedDevice, performSearch]);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+
+    if (isLoading) {
+        return <div className="loading">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="error">Error: {error}</div>;
+    }
 
     return (
         <div className="dashboard search-page">
@@ -86,8 +96,9 @@ const Search = () => {
             <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
                 <Database className="sidebar-icon" onClick={() => navigate('/')} />
                 <SearchIcon className="sidebar-icon active" />
-                <div className="sidebar-icon alert-icon">
+                <div className="sidebar-icon alert-icon" onClick={() => navigate('/notification')}>
                     <Bell />
+                    {notificationCount > 0 && <span className="alert-badge">{notificationCount}</span>}
                 </div>
                 <Settings className="sidebar-icon" />
                 <User className="sidebar-icon profile" onClick={() => navigate('/profile')} />
@@ -115,7 +126,7 @@ const Search = () => {
                         className="device-select"
                     >
                         <option value="all">All Devices</option>
-                        {dummyDevices.map(device => (
+                        {devices.map(device => (
                             <option key={device.id} value={device.id}>{device.name}</option>
                         ))}
                     </select>
@@ -126,20 +137,24 @@ const Search = () => {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Date</th>
-                                    <th>Time</th>
+                                    <th>Timestamp</th>
+                                    <th>Value</th>
+                                    <th>Category</th>
+                                    <th>Label</th>
                                     <th>Area</th>
                                     <th>Device</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {searchResults.map((result, index) => (
-                                    <tr key={index}>
+                                {searchResults.map((result) => (
+                                    <tr key={result.id}>
                                         <td>{result.id}</td>
-                                        <td>{result.date}</td>
-                                        <td>{result.time}</td>
+                                        <td>{new Date(result.timestamp).toLocaleString()}</td>
+                                        <td>{result.value}</td>
+                                        <td>{result.category}</td>
+                                        <td>{result.label === 0 ? 'Non-Fall' : 'Fall'}</td>
                                         <td>{result.area}</td>
-                                        <td>{dummyDevices.find(d => d.id === parseInt(selectedDevice))?.name || 'Multiple'}</td>
+                                        <td>{devices.find(d => d.id === result.deviceId)?.name || 'Unknown'}</td>
                                     </tr>
                                 ))}
                             </tbody>

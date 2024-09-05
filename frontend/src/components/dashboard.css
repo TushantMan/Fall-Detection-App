@@ -268,18 +268,6 @@ th {
   .sidebar.open {
       transform: translateX(60px);
   }
-
-  .main-content {
-      padding-left: 20px;
-  }
-
-  .dashboard-content {
-      flex-direction: column;
-  }
-
-  .device-list, .data-visualizations, .chart-container, .table-container {
-      width: 100%;
-  }
 }
 
 /* Sidebar overlay */
@@ -325,4 +313,40 @@ th {
 
 .dashboard-title {
   margin-bottom: 10px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.pagination button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  margin: 0 10px;
+  font-size: 14px;
 }

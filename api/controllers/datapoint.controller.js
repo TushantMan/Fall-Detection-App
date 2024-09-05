@@ -98,8 +98,14 @@ exports.delete = (req, res) => {
 exports.generateDummyData = async (req, res) => {
   const deviceId = req.params.deviceId;
   const areas = ["North", "South", "East", "West"];
+  const categories = [
+    { value: 1, name: "Standby", label: 0 },
+    { value: 6, name: "Fast Fall", label: 1 },
+    { value: 7, name: "Slow Fall", label: 1 },
+    { value: 8, name: "Stand Up", label: 0 }
+  ];
+
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
-  const generateRandomValue = (min, max) => Math.round((Math.random() * (max - min) + min) * 100) / 100;
 
   try {
     const device = await Device.findByPk(deviceId);
@@ -110,17 +116,23 @@ exports.generateDummyData = async (req, res) => {
     }
 
     const dataPoints = [];
-    const startDate = new Date(2023, 0, 1);
+    const startDate = new Date(2023, 0, 1); // Start from January 1, 2023
+    const endDate = new Date(); // Current date
 
-    for (let i = 0; i < 100; i++) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+    while (startDate <= endDate) {
+      const category = getRandomElement(categories);
       const dataPoint = await DataPoint.create({
         deviceId: device.id,
-        timestamp: date,
-        value: generateRandomValue(0, 100),
+        timestamp: new Date(startDate),
+        value: category.value,
+        category: category.name,
+        label: category.label,
         area: getRandomElement(areas)
       });
       dataPoints.push(dataPoint);
+      
+      // Move to the next day
+      startDate.setDate(startDate.getDate() + 1);
     }
 
     res.send({ message: "Dummy data points generated successfully", count: dataPoints.length });

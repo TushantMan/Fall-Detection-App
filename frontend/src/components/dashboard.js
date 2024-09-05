@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown } from 'lucide-react';
+import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { NotificationContext } from '../context/notificationContext';
 import "./dashboard.css";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ['#FF0000', '#0088FE'];
+const ITEMS_PER_PAGE = 10;
 
 const Dashboard = () => {
     const [devices, setDevices] = useState([]);
@@ -15,6 +17,10 @@ const Dashboard = () => {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [isGeneratingDevices, setIsGeneratingDevices] = useState(false);
     const [isGeneratingData, setIsGeneratingData] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const { addNotification } = useContext(NotificationContext);
+    const {notificationCount } = useContext(NotificationContext);
+    
     const navigate = useNavigate();
 
     // Function to fetch devices
@@ -68,10 +74,10 @@ const Dashboard = () => {
         try {
             await axios.post('http://localhost:5001/api/devices/generate');
             await fetchDevices(); // Refresh the device list after generating devices
-            alert('Dummy devices generated successfully!');
+            alert('Devices generated successfully!');
         } catch (error) {
-            console.error('Error generating dummy devices:', error);
-            alert('Error generating dummy devices. Please try again.');
+            console.error('Error generating devices:', error);
+            alert('Error generating devices. Please try again.');
         } finally {
             setIsGeneratingDevices(false);
         }
@@ -86,11 +92,12 @@ const Dashboard = () => {
         setIsGeneratingData(true);
         try {
             await axios.post(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/generate`);
-            await fetchDeviceData(selectedDevice.id); // Refresh the data for the selected device
-            alert('Dummy data generated successfully!');
+            await fetchDeviceData(selectedDevice.id);
+            addNotification(`Fall Detected in ${selectedDevice.name}`);
+            alert('Data generated successfully!');
         } catch (error) {
-            console.error('Error generating dummy data:', error);
-            alert('Error generating dummy data. Please try again.');
+            console.error('Error generating data:', error);
+            alert('Error generating data. Please try again.');
         } finally {
             setIsGeneratingData(false);
         }
@@ -98,22 +105,36 @@ const Dashboard = () => {
 
     // Process data for the line chart
     const processLineChartData = (data) => {
-        // Simplified example: aggregate data by month
-        return data.slice(0, 6).map(point => ({
-            name: new Date(point.timestamp).toLocaleDateString('en-US', { month: 'short' }),
-            value: point.value
-        }));
-    };
-
-    // Process data for the pie chart
-    const processPieChartData = (data) => {
-        // Simplified example: group data by area
-        const areaCount = data.reduce((acc, point) => {
-            acc[point.area] = (acc[point.area] || 0) + 1;
+        // Group data by month and calculate the percentage of falls
+        const groupedData = data.reduce((acc, point) => {
+            const date = new Date(point.timestamp);
+            const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+            if (!acc[monthYear]) {
+                acc[monthYear] = { total: 0, falls: 0 };
+            }
+            acc[monthYear].total++;
+            if (point.label === 1) {
+                acc[monthYear].falls++;
+            }
             return acc;
         }, {});
 
-        return Object.entries(areaCount).map(([name, value]) => ({ name, value }));
+        return Object.entries(groupedData)
+            .map(([monthYear, counts]) => ({
+                name: monthYear,
+                value: (counts.falls / counts.total) * 100
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name)); // Sort by date
+    };
+
+    const processPieChartData = (data) => {
+        const labelCounts = data.reduce((acc, point) => {
+            const labelName = point.label === 0 ? 'Non-Fall' : 'Fall';
+            acc[labelName] = (acc[labelName] || 0) + 1;
+            return acc;
+        }, {});
+
+        return Object.entries(labelCounts).map(([name, value]) => ({ name, value }));
     };
 
     // Function to sort table data
@@ -141,6 +162,16 @@ const Dashboard = () => {
     };
 
     const sortedData = deviceData ? getSortedData(deviceData.tableData) : [];
+    const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+
+    const getPaginatedData = () => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return sortedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    };
+
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
 
     return (
         <div className="dashboard">
@@ -150,10 +181,11 @@ const Dashboard = () => {
             </button>
             {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)}></div>}
             <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                <Database className="sidebar-icon" />
+                <Database className="sidebar-icon active" />
                 <Search className="sidebar-icon" onClick={() => navigate('/search')} />
-                <div className="sidebar-icon alert-icon">
-                    <Bell />
+                <div className="sidebar-icon alert-icon" onClick={() => navigate('/notification')}>
+                <Bell/>
+                    {notificationCount > 0 && <span className="alert-badge">{notificationCount}</span>}
                 </div>
                 <Settings className="sidebar-icon" />
                 <User className="sidebar-icon profile" onClick={() => navigate('/profile')} />
@@ -169,7 +201,7 @@ const Dashboard = () => {
                     onClick={generateDummyDevices}
                     disabled={isGeneratingDevices}
                 >
-                    {isGeneratingDevices ? 'Generating Devices...' : 'Generate Dummy Devices'}
+                    {isGeneratingDevices ? 'Generating Devices...' : 'Generate Devices'}
                 </button>
 
                 <button 
@@ -177,7 +209,7 @@ const Dashboard = () => {
                 onClick={generateDummyData}
                 disabled={isGeneratingData || !selectedDevice}
             >
-                {isGeneratingData ? 'Generating Data...' : 'Generate Dummy Data'}
+                {isGeneratingData ? 'Generating Data...' : 'Generate Data'}
             </button>
 
                 <div className="dashboard-content">
@@ -221,16 +253,38 @@ const Dashboard = () => {
                             <div className="data-visualizations">
                                 {/* Line Chart */}
                                 <div className="chart-container">
-                                    <h2>{selectedDevice.name} Line Chart</h2>
-                                    <ResponsiveContainer width="100%" height={200}>
-                                        <LineChart data={deviceData.lineChart}>
-                                            <XAxis dataKey="name" stroke="#ffffff" />
-                                            <YAxis stroke="#ffffff" />
-                                            <Tooltip />
-                                            <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
+                <h2>{selectedDevice.name} Monthly Fall Percentage</h2>
+                <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={deviceData.lineChart}>
+                        <XAxis 
+                            dataKey="name" 
+                            stroke="#ffffff"
+                            tickFormatter={(tick) => {
+                                const [year, month] = tick.split('-');
+                                return `${month}/${year.slice(2)}`;
+                            }}
+                        />
+                        <YAxis 
+                            stroke="#ffffff"
+                            tickFormatter={(tick) => `${tick}%`}
+                        />
+                        <Tooltip 
+                            formatter={(value) => [`${value.toFixed(2)}%`, 'Fall Percentage']}
+                            labelFormatter={(label) => {
+                                const [year, month] = label.split('-');
+                                return `${month}/${year}`;
+                            }}
+                        />
+                        <Line 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#3b82f6" 
+                            strokeWidth={2} 
+                            dot={false}
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
+            </div>
 
                                 {/* Pie Chart */}
                                 <div className="chart-container">
@@ -257,32 +311,49 @@ const Dashboard = () => {
 
                                 {/* Table */}
                                 <div className="table-container">
-                                    <h2>{selectedDevice.name} Table Data</h2>
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                {['id', 'timestamp', 'value', 'area'].map((key) => (
-                                                    <th key={key} onClick={() => sortData(key)}>
-                                                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                                                        {sortConfig.key === key && (
-                                                            sortConfig.direction === 'ascending' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                                                        )}
-                                                    </th>
-                                                ))}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {sortedData.map((row) => (
-                                                <tr key={row.id}>
-                                                    <td>{row.id}</td>
-                                                    <td>{new Date(row.timestamp).toLocaleString()}</td>
-                                                    <td>{row.value}</td>
-                                                    <td>{row.area}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                <h2>{selectedDevice.name} Table Data</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            {['id', 'timestamp', 'value', 'category', 'label', 'area'].map((key) => (
+                                <th key={key} onClick={() => sortData(key)}>
+                                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    {sortConfig.key === key && (
+                                        sortConfig.direction === 'ascending' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                                    )}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {getPaginatedData().map((row) => (
+                            <tr key={row.id}>
+                                <td>{row.id}</td>
+                                <td>{new Date(row.timestamp).toLocaleString()}</td>
+                                <td>{row.value}</td>
+                                <td>{row.category}</td>
+                                <td>{row.label === 0 ? 'Non-Fall' : 'Fall'}</td>
+                                <td>{row.area}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                <div className="pagination">
+                    <button 
+                        onClick={() => handlePageChange(currentPage - 1)} 
+                        disabled={currentPage === 1}
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <span>{currentPage} of {totalPages}</span>
+                    <button 
+                        onClick={() => handlePageChange(currentPage + 1)} 
+                        disabled={currentPage === totalPages}
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            </div>
                             </div>
                         </>
                     )}

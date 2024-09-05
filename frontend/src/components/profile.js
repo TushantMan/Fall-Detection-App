@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { auth, db } from "./firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Database, Search, Bell, Settings, User, Menu } from 'lucide-react';
+import { NotificationContext } from '../context/notificationContext';
 import "./auth.css";
 import "./dashboard.css";
 
 function Profile() {
   const [userDetails, setUserDetails] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const {notificationCount } = useContext(NotificationContext);
   const navigate = useNavigate();
 
   const fetchUserData = async () => {
@@ -60,10 +62,11 @@ function Profile() {
       {/* Sidebar */}
       <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
         <Database className="sidebar-icon" onClick={handleDashboardNavigation} />
-        <Search className="sidebar-icon" />
-        <div className="sidebar-icon alert-icon">
-          <Bell />
-        </div>
+        <Search className="sidebar-icon" onClick={() => navigate('/search')}/>
+        <div className="sidebar-icon alert-icon" onClick={() => navigate('/notification')}>
+        <Bell />
+                    {notificationCount > 0 && <span className="alert-badge">{notificationCount}</span>}
+                </div>
         <Settings className="sidebar-icon" />
         <User className="sidebar-icon active" />
       </div>
