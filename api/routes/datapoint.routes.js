@@ -1,5 +1,5 @@
 module.exports = app => {
-    const dataPoints = require("../controllers/dataPoint.controller.js");
+  const dataPoints = require("../controllers/datapoint.controller.js");
   
     var router = require("express").Router();
   
@@ -22,7 +22,7 @@ module.exports = app => {
     router.delete("/dataPoints/:dataPointId", dataPoints.delete);
   
     // Generate dummy data points
-  router.post("/datapoints/generate", dataPoints.generateDummyData);
+    router.post("/devices/:deviceId/dataPoints/generate", dataPoints.generateDummyData);
 
   app.use('/api', router);
 };

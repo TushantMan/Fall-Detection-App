@@ -79,12 +79,14 @@ const Dashboard = () => {
 
     // Function to generate dummy data
     const generateDummyData = async () => {
+        if (!selectedDevice) {
+            alert('Please select a device first.');
+            return;
+        }
         setIsGeneratingData(true);
         try {
             await axios.post(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/generate`);
-            if (selectedDevice) {
-                await fetchDeviceData(selectedDevice.id); // Refresh the data for the selected device
-            }
+            await fetchDeviceData(selectedDevice.id); // Refresh the data for the selected device
             alert('Dummy data generated successfully!');
         } catch (error) {
             console.error('Error generating dummy data:', error);
@@ -171,12 +173,12 @@ const Dashboard = () => {
                 </button>
 
                 <button 
-                    className="generate-data-btn" 
-                    onClick={generateDummyData}
-                    disabled={isGeneratingData}
-                >
-                    {isGeneratingData ? 'Generating Data...' : 'Generate Dummy Data'}
-                </button>
+                className="generate-data-btn" 
+                onClick={generateDummyData}
+                disabled={isGeneratingData || !selectedDevice}
+            >
+                {isGeneratingData ? 'Generating Data...' : 'Generate Dummy Data'}
+            </button>
 
                 <div className="dashboard-content">
                     {/* Device list */}
