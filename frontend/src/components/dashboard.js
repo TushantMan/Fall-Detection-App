@@ -201,7 +201,7 @@ const Dashboard = () => {
                     onClick={generateDummyDevices}
                     disabled={isGeneratingDevices}
                 >
-                    {isGeneratingDevices ? 'Generating Devices...' : 'Generate Devices'}
+                    {isGeneratingDevices ? 'Importing Devices...' : 'Import Devices'}
                 </button>
 
                 <button 
@@ -209,7 +209,7 @@ const Dashboard = () => {
                 onClick={generateDummyData}
                 disabled={isGeneratingData || !selectedDevice}
             >
-                {isGeneratingData ? 'Generating Data...' : 'Generate Data'}
+                {isGeneratingData ? 'Importing Data...' : 'Import Data'}
             </button>
 
                 <div className="dashboard-content">
