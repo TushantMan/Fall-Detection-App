@@ -74,10 +74,10 @@ const Dashboard = () => {
         try {
             await axios.post('http://localhost:5001/api/devices/generate');
             await fetchDevices(); // Refresh the device list after generating devices
-            alert('Devices generated successfully!');
+            alert('Devices imported successfully!');
         } catch (error) {
-            console.error('Error generating devices:', error);
-            alert('Error generating devices. Please try again.');
+            console.error('Error importing devices:', error);
+            alert('Error importing devices. Please try again.');
         } finally {
             setIsGeneratingDevices(false);
         }
@@ -94,10 +94,10 @@ const Dashboard = () => {
             await axios.post(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/generate`);
             await fetchDeviceData(selectedDevice.id);
             addNotification(`Fall Detected in ${selectedDevice.name}`);
-            alert('Data generated successfully!');
+            alert('Data imported successfully!');
         } catch (error) {
-            console.error('Error generating data:', error);
-            alert('Error generating data. Please try again.');
+            console.error('Error importing data:', error);
+            alert('Error importing data. Please try again.');
         } finally {
             setIsGeneratingData(false);
         }
