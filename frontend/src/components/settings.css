@@ -1,0 +1,82 @@
+/* settings.css */
+
+.settings-container {
+    background-color: #2c2c2c;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #3c3c3c;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.toggle-btn {
+    position: relative;
+    width: 100px;
+    height: 40px;
+    background-color: #444;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggle-btn.enabled {
+    background-color: #2760fb;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 34px;
+    height: 34px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.toggle-btn.enabled .toggle-slider {
+    transform: translateX(60px);
+}
+
+.toggle-text {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.toggle-btn.disabled .toggle-text {
+    left: 45px;
+}
+
+.toggle-btn.enabled .toggle-text {
+    right: 55px;
+}
+
+.setting-description {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #888;
+    line-height: 1.4;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+
+    .toggle-btn {
+        margin-top: 10px;
+    }
+}

@@ -27,7 +27,7 @@ const Notification = () => {
                     <Bell />
                     {notificationCount > 0 && <span className="alert-badge">{notificationCount}</span>}
                 </div>
-                <Settings className="sidebar-icon" />
+                <Settings className="sidebar-icon" onClick={() => navigate('/settings')}/>
                 <User className="sidebar-icon profile" onClick={() => navigate('/profile')} />
             </div>
             <div className="main-content">

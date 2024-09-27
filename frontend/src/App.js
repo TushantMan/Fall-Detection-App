@@ -17,6 +17,7 @@ import Profile from "./components/profile";
 import Dashboard from "./components/dashboard";
 import Search from './components/search';
 import Notification from './components/notification';
+import Settings from './components/settings';
 import { NotificationProvider } from './context/notificationContext';
 import { auth } from "./components/firebase";
 
@@ -62,6 +63,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/search" element={<Search />} />
           <Route path="/notification" element={<Notification />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
         <ToastContainer />
       </div>

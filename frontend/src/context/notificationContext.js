@@ -1,3 +1,4 @@
+// notificationContext.js
 import React, { createContext, useState, useCallback, useEffect } from 'react';
 
 export const NotificationContext = createContext();
@@ -6,6 +7,9 @@ export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState(() => {
         const savedNotifications = localStorage.getItem('notifications');
         return savedNotifications ? JSON.parse(savedNotifications) : [];
+    });
+    const [isPushEnabled, setIsPushEnabled] = useState(() => {
+        return Notification.permission === 'granted';
     });
 
     useEffect(() => {
@@ -17,10 +21,13 @@ export const NotificationProvider = ({ children }) => {
             ...prevNotifications,
             { message, timestamp: new Date().toISOString() }
         ]);
-    }, []);
+        if (isPushEnabled) {
+            showPushNotification(message);
+        }
+    }, [isPushEnabled]);
 
     const clearNotification = useCallback((index) => {
-        setNotifications(prevNotifications => 
+        setNotifications(prevNotifications =>
             prevNotifications.filter((_, i) => i !== index)
         );
     }, []);
@@ -29,13 +36,32 @@ export const NotificationProvider = ({ children }) => {
         setNotifications([]);
     }, []);
 
+    const togglePushNotifications = useCallback(async () => {
+        if (isPushEnabled) {
+            setIsPushEnabled(false);
+        } else {
+            const permission = await Notification.requestPermission();
+            setIsPushEnabled(permission === 'granted');
+        }
+    }, [isPushEnabled]);
+
+    const showPushNotification = (message) => {
+        if (!('Notification' in window)) {
+            console.log('This browser does not support desktop notification');
+        } else if (Notification.permission === 'granted') {
+            new Notification(message);
+        }
+    };
+
     return (
-        <NotificationContext.Provider value={{ 
-            notifications, 
-            addNotification, 
-            clearNotification, 
+        <NotificationContext.Provider value={{
+            notifications,
+            addNotification,
+            clearNotification,
             clearAllNotifications,
-            notificationCount: notifications.length
+            notificationCount: notifications.length,
+            isPushEnabled,
+            togglePushNotifications
         }}>
             {children}
         </NotificationContext.Provider>
