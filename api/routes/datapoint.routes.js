@@ -24,5 +24,8 @@ module.exports = app => {
     // Generate dummy data points
     router.post("/devices/:deviceId/dataPoints/generate", dataPoints.generateDummyData);
 
+    // Generate notification for data points
+    router.get("/devices/:deviceId/dataPoints/latest", dataPoints.getLatestDataPoint);
+
   app.use('/api', router);
 };

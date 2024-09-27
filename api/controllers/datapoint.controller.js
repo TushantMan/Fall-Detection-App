@@ -115,31 +115,64 @@ exports.generateDummyData = async (req, res) => {
       });
     }
 
-    const dataPoints = [];
-    const startDate = new Date(2023, 0, 1); // Start from January 1, 2023
-    const endDate = new Date(); // Current date
+    let count = 0;
+    const intervalId = setInterval(async () => {
+      if (count >= 50) {
+        clearInterval(intervalId);
+        return;
+      }
 
-    while (startDate <= endDate) {
       const category = getRandomElement(categories);
       const dataPoint = await DataPoint.create({
         deviceId: device.id,
-        timestamp: new Date(startDate),
+        timestamp: new Date(),
         value: category.value,
         category: category.name,
         label: category.label,
         area: getRandomElement(areas)
       });
-      dataPoints.push(dataPoint);
-      
-      // Move to the next day
-      startDate.setDate(startDate.getDate() + 1);
-    }
+      console.log("Generated data point:", dataPoint);
 
-    res.send({ message: "Dummy data points generated successfully", count: dataPoints.length });
+      if (dataPoint.value === 6 || dataPoint.value === 7) {
+        // TODO: Send notification for the relevant data point
+        console.log("Sending notification for data point:", dataPoint);
+      }
+
+      count++;
+    }, 5000);
+
+    res.send({ message: "Data point generation started successfully" });
   } catch (err) {
     console.error("Error generating dummy data points:", err);
     res.status(500).send({
       message: err.message || "Some error occurred while generating dummy data points."
+    });
+  }
+};
+
+// Get the latest data point for a specific device
+exports.getLatestDataPoint = async (req, res) => {
+  const deviceId = req.params.deviceId;
+
+  try {
+    const latestDataPoint = await DataPoint.findOne({
+      where: { deviceId: deviceId },
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (latestDataPoint) {
+      // Check if the data point has a label of 1 or a value of 6 or 7
+      if ( latestDataPoint.value === 6 || latestDataPoint.value === 7) {
+        // TODO: Send notification for the relevant data point
+        console.log("Sending notification for data point:", latestDataPoint);
+      }
+      res.send(latestDataPoint);
+    } else {
+      res.status(404).send({ message: 'No data points found for the specified device.' });
+    }
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || 'Some error occurred while retrieving the latest data point.',
     });
   }
 };

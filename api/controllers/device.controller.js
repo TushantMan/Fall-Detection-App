@@ -80,7 +80,7 @@ exports.delete = (req, res) => {
 
 // Generate dummy devices
 exports.generateDummyData = async (req, res) => {
-  const deviceNames = ["Rasberry Pi 1", "Rasberry Pi 2", "Rasberry Pi 3", "Rasberry Pi 4"];
+  const deviceNames = ["Raspberry Pi 1", "Raspberry Pi 2", "Raspberry Pi 3", "Raspberry Pi 4"];
   const locations = ["Room A", "Room B", "Room C", "Outdoor"];
   const statuses = ["Active", "Inactive", "Maintenance"];
 
@@ -90,26 +90,20 @@ exports.generateDummyData = async (req, res) => {
     // Check the current number of devices
     const existingDevices = await Device.findAll();
     if (existingDevices.length >= 4) {
-      return res.send({ message: "4 devices already exist. No new devices will be generated." });
+      return res.send({ message: "Maximum number of devices reached. No new device will be generated." });
     }
 
-    const devicesToCreate = 4 - existingDevices.length;
-    const devices = [];
+    // Generate one device
+    const device = await Device.create({
+      name: deviceNames[existingDevices.length],
+      location: getRandomElement(locations),
+      status: getRandomElement(statuses)
+    });
 
-    // Create devices up to 4
-    for (let i = 0; i < devicesToCreate; i++) {
-      const device = await Device.create({
-        name: deviceNames[i], // Ensure unique names
-        location: getRandomElement(locations),
-        status: getRandomElement(statuses)
-      });
-      devices.push(device);
-    }
-
-    res.send({ message: `${devicesToCreate} dummy devices generated successfully`, devices });
+    res.send({ message: "Dummy device generated successfully", device });
   } catch (err) {
     res.status(500).send({
-      message: err.message || "Some error occurred while generating dummy devices."
+      message: err.message || "Some error occurred while generating the dummy device."
     });
   }
 };

@@ -16,13 +16,15 @@ export const NotificationProvider = ({ children }) => {
         localStorage.setItem('notifications', JSON.stringify(notifications));
     }, [notifications]);
 
-    const addNotification = useCallback((message) => {
-        setNotifications(prevNotifications => [
-            ...prevNotifications,
-            { message, timestamp: new Date().toISOString() }
-        ]);
-        if (isPushEnabled) {
-            showPushNotification(message);
+    const addNotification = useCallback((message, dataPoint) => {
+        if (dataPoint.value === 6 || dataPoint.value === 7) {
+            setNotifications(prevNotifications => [
+                ...prevNotifications,
+                { message, timestamp: new Date().toISOString() }
+            ]);
+            if (isPushEnabled) {
+                showPushNotification(message);
+            }
         }
     }, [isPushEnabled]);
 

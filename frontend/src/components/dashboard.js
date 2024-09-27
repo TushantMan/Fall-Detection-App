@@ -20,6 +20,7 @@ const Dashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const { addNotification } = useContext(NotificationContext);
     const {notificationCount } = useContext(NotificationContext);
+    const [latestDataPoint, setLatestDataPoint] = useState(null);
     
     const navigate = useNavigate();
 
@@ -72,16 +73,20 @@ const Dashboard = () => {
     const generateDummyDevices = async () => {
         setIsGeneratingDevices(true);
         try {
-            await axios.post('http://localhost:5001/api/devices/generate');
-            await fetchDevices(); // Refresh the device list after generating devices
-            alert('Devices imported successfully!');
+          const response = await axios.post('http://localhost:5001/api/devices/generate');
+          if (response.data.device) {
+            await fetchDevices(); // Refresh the device list after generating a device
+            alert('Device imported successfully!');
+          } else {
+            alert(response.data.message);
+          }
         } catch (error) {
-            console.error('Error importing devices:', error);
-            alert('Error importing devices. Please try again.');
+          console.error('Error importing device:', error);
+          alert('Error importing device. Please try again.');
         } finally {
-            setIsGeneratingDevices(false);
+          setIsGeneratingDevices(false);
         }
-    };
+      };
 
     // Function to generate dummy data
     const generateDummyData = async () => {
@@ -93,7 +98,7 @@ const Dashboard = () => {
         try {
             await axios.post(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/generate`);
             await fetchDeviceData(selectedDevice.id);
-            addNotification(`Fall Detected in ${selectedDevice.name}`);
+            addNotification(`Connected ${selectedDevice.name} to dashboard`, { value: 6 }); // Pass a dummy dataPoint object
             alert('Data imported successfully!');
         } catch (error) {
             console.error('Error importing data:', error);
@@ -102,6 +107,37 @@ const Dashboard = () => {
             setIsGeneratingData(false);
         }
     };
+    const fetchLatestDataPoint = useCallback(async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/latest`);
+            const newDataPoint = response.data;
+    
+            if (!latestDataPoint || newDataPoint.id !== latestDataPoint.id) {
+                setLatestDataPoint(newDataPoint);
+                if (newDataPoint.value === 6 || newDataPoint.value === 7) {
+                    addNotification(`New fall detected for ${selectedDevice.name}`, newDataPoint);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching the latest data point:', error);
+        }
+    }, [selectedDevice, latestDataPoint, addNotification]);
+    
+    
+    useEffect(() => {
+        if (selectedDevice) {
+            const intervalId = setInterval(fetchLatestDataPoint, 5000);
+            return () => {
+                clearInterval(intervalId);
+            };
+        }
+    }, [selectedDevice, fetchLatestDataPoint]);
+
+    useEffect(() => {
+        if (latestDataPoint) {
+            fetchDeviceData(selectedDevice.id);
+        }
+    }, [latestDataPoint, selectedDevice, fetchDeviceData]);
 
     // Process data for the line chart
     const processLineChartData = (data) => {
