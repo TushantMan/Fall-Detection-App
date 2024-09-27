@@ -1,14 +1,37 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Database, Search, Settings as SettingsIcon, User, Menu } from 'lucide-react';
 import { NotificationContext } from '../context/notificationContext';
+import axios from 'axios';
 import './settings.css';
 import './dashboard.css';
 
 const Settings = () => {
-    const { isPushEnabled, togglePushNotifications, notificationCount } = useContext(NotificationContext);
+    const { 
+        isPushEnabled, 
+        togglePushNotifications, 
+        notificationCount,
+        addNotification
+    } = useContext(NotificationContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isGeneratingDevices, setIsGeneratingDevices] = useState(false);
+    const [devices, setDevices] = useState([]);
+    const [generatingDataForDevice, setGeneratingDataForDevice] = useState({});
     const navigate = useNavigate();
+
+    const fetchDevices = useCallback(async () => {
+        try {
+            const response = await axios.get('http://localhost:5001/api/devices');
+            setDevices(response.data);
+        } catch (error) {
+            console.error('Error fetching devices:', error);
+            addNotification('Error fetching devices. Please try again.', { value: 0 });
+        }
+    }, [addNotification]);
+
+    useEffect(() => {
+        fetchDevices();
+    }, [fetchDevices]);
 
     const handleTogglePush = async () => {
         await togglePushNotifications();
@@ -17,6 +40,92 @@ const Settings = () => {
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
+
+    const generateDummyDevices = async () => {
+        setIsGeneratingDevices(true);
+        try {
+            const response = await axios.post('http://localhost:5001/api/devices/generate');
+            if (response.data.device) {
+                await fetchDevices();
+                addNotification(`New device ${response.data.device.name} added`, { value: 1 });
+            } else {
+                addNotification(response.data.message, { value: 0 });
+            }
+        } catch (error) {
+            console.error('Error importing device:', error);
+            addNotification('Error importing device. Please try again.', { value: 0 });
+        } finally {
+            setIsGeneratingDevices(false);
+        }
+    };
+
+    const generateDataForDevice = async (deviceId) => {
+        const device = devices.find(d => d.id === deviceId);
+        
+        // Show confirmation dialog
+        const confirmMessage = `Are you sure you want to connect to ${device.name}?`;
+        if (!window.confirm(confirmMessage)) {
+            return; // If user clicks Cancel, do nothing
+        }
+
+        setGeneratingDataForDevice(prev => ({ ...prev, [deviceId]: true }));
+        try {
+            const response = await axios.post(`http://localhost:5001/api/devices/${deviceId}/dataPoints/generate`);
+            
+            if (response.data && response.data.message) {
+                addNotification(`${response.data.message} to ${device.name}`, { value: 6 });
+            } else {
+                addNotification(`Successfully connected ${device.name}`, { value: 6 });
+            }
+            
+            await fetchDevices();
+        } catch (error) {
+            console.error('Error importing data:', error);
+            const errorMessage = error.response?.data?.message || 'Error importing data. Please try again.';
+            addNotification(`${errorMessage} for device ${deviceId}`, { value: 0 });
+        } finally {
+            setGeneratingDataForDevice(prev => ({ ...prev, [deviceId]: false }));
+        }
+    };
+
+    const togglePauseDevice = async (deviceId) => {
+        try {
+            const device = devices.find(d => d.id === deviceId);
+            if (!device) {
+                throw new Error('Device not found');
+            }
+
+            const action = device.paused ? 'resume' : 'pause';
+            await axios.post(`http://localhost:5001/api/devices/${deviceId}/${action}`);
+            
+            setDevices(prevDevices => prevDevices.map(d => 
+                d.id === deviceId ? { ...d, paused: !d.paused } : d
+            ));
+
+            const actionText = device.paused ? 'Resumed' : 'Paused';
+            addNotification(`${actionText} data generation for ${device.name}`, { value: device.paused ? 3 : 2 });
+        } catch (error) {
+            console.error('Error toggling device pause state:', error);
+            const errorAction = error.message === 'Device not found' ? 'finding' : 'updating';
+            addNotification(`Error ${errorAction} device ${deviceId}. Please try again.`, { value: 0 });
+        }
+    };
+
+    const disconnectDevice = async (deviceId) => {
+        if (window.confirm('Are you sure you want to disconnect this device? This action cannot be undone.')) {
+            try {
+                await axios.delete(`http://localhost:5001/api/devices/${deviceId}`);
+                const device = devices.find(d => d.id === deviceId);
+                addNotification(`Disconnected ${device.name}`, { value: 4 });
+                setDevices(prevDevices => prevDevices.filter(d => d.id !== deviceId));
+            } catch (error) {
+                console.error('Error disconnecting device:', error);
+                addNotification(`Error disconnecting device ${deviceId}. Please try again.`, { value: 0 });
+            }
+        }
+    };
+
+    
 
     return (
         <div className="dashboard settings-page">
@@ -34,7 +143,7 @@ const Settings = () => {
                 <SettingsIcon className="sidebar-icon active" />
                 <User className="sidebar-icon profile" onClick={() => navigate('/profile')} />
             </div>
-            <div className="main-content">
+            <div className="main-content settings-content">
                 <h1>Settings</h1>
                 <div className="settings-container">
                     <div className="setting-item">
@@ -55,6 +164,74 @@ const Settings = () => {
                                 : "Push notifications are not enabled. Click the toggle and allow notifications in your browser to enable them."
                         }
                     </p>
+                    </div>
+                    <div className="settings-container">
+                    <div className="devices-section">
+                        <h2>Devices</h2>
+                        <button
+                            className="generate-data-btn"
+                            onClick={generateDummyDevices}
+                            disabled={isGeneratingDevices}
+                        >
+                            {isGeneratingDevices ? 'Adding Device...' : 'Add Device'}
+                        </button>
+                        {devices.length > 0 ? (
+                            <div className="device-grid-container two-column-grid">
+                                <div className="device-grid">
+                                    {devices.map((device) => (
+                                        <div key={device.id} className="device-card">
+                                            <h3 className="device-name">{device.name}</h3>
+                                            <div className="device-info">
+                                                <div className="info-item">
+                                                    <span className="info-label">Device ID:</span>
+                                                    <span className="info-value">{device.id}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Location:</span>
+                                                    <span className="info-value">{device.location}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Status:</span>
+                                                    <span className={`info-value status-${device.status.toLowerCase()}`}>
+                                                        {device.status}
+                                                    </span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Device Status:</span>
+                                                    <span className={`info-value status-${device.paused ? 'inactive' : 'active'}`}>
+                                                        {device.paused ? 'Paused' : 'Active'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="device-actions">
+                                                <button
+                                                    className="generate-data-btn device-specific"
+                                                    onClick={() => generateDataForDevice(device.id)}
+                                                    disabled={generatingDataForDevice[device.id] || device.paused}
+                                                >
+                                                    {generatingDataForDevice[device.id] ? 'Connecting Device...' : 'Connect Device'}
+                                                </button>
+                                                <button
+                                                    className={`pause-btn device-specific ${device.paused ? 'resumed' : ''}`}
+                                                    onClick={() => togglePauseDevice(device.id)}
+                                                >
+                                                    {device.paused ? 'Resume Device' : 'Pause Device'}
+                                                </button>
+                                                <button
+                                                    className="disconnect-btn device-specific"
+                                                    onClick={() => disconnectDevice(device.id)}
+                                                >
+                                                    Disconnect Device
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <p>No devices added yet. Click 'Add Device' to add a device.</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -21,5 +21,8 @@ module.exports = app => {
     // Generate dummy devices
   router.post("/devices/generate", devices.generateDummyData);
 
+  router.post('/devices/:deviceId/pause', devices.pauseDevice);
+  router.post('/devices/:deviceId/resume', devices.resumeDevice);
+
   app.use('/api', router);
 };

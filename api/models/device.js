@@ -17,6 +17,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.ENUM('Active', 'Inactive', 'Maintenance'),
       defaultValue: 'Active',
     },
+    paused: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+    },
   });
 
   return Device;

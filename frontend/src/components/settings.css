@@ -73,6 +73,200 @@
     line-height: 1.4;
 }
 
+.devices-section {
+    margin-top: 30px;
+}
+
+.devices-section h2 {
+    margin-bottom: 15px;
+}
+
+.generate-data-btn {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.generate-data-btn:hover {
+    background-color: #45a049;
+}
+
+.generate-data-btn:disabled {
+    background-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.device-grid-container {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.device-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    padding: 10px 0;
+    align-items: start;
+    justify-content: start;
+}
+
+.device-card {
+    flex: 0 0 auto;
+    width: auto;
+    background-color: #3c3c3c;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.device-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.device-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #888;
+}
+
+.info-value {
+    color: #fff;
+}
+
+.status-active {
+    color: #4ade80;
+}
+
+.status-inactive {
+    color: #f87171;
+}
+
+.status-maintenance {
+    color: #fbbf24;
+}
+.device-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.device-specific {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.generate-data-btn.device-specific {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.generate-data-btn.device-specific:hover {
+    background-color: #45a049;
+}
+
+.pause-btn.device-specific {
+    background-color: #ff9800;
+    color: white;
+}
+
+.pause-btn.device-specific:hover {
+    background-color: #e68a00;
+}
+
+.disconnect-btn.device-specific {
+    background-color: #f44336;
+    color: white;
+}
+
+.disconnect-btn.device-specific:hover {
+    background-color: #da190b;
+}
+
+.device-specific:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Existing styles for toggle button, etc. remain the same */
+@media (max-width: 1370px) and (min-width: 701px) {
+    .device-grid-container {
+        overflow-x: visible;
+    }
+
+    .device-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .device-card {
+        width: auto;
+    }
+    .generate-data-btn {
+        width: 100%;
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 700px) {
+    .device-grid-container {
+        overflow-x: visible;
+    }
+
+    .device-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .device-card {
+        width: 100%;
+    }
+
+    .generate-data-btn {
+        width: 100%;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .info-label {
+        margin-bottom: 2px;
+    }
+}
 /* Responsive styles */
 @media (max-width: 768px) {
 

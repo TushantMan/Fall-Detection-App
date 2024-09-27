@@ -115,9 +115,22 @@ exports.generateDummyData = async (req, res) => {
       });
     }
 
+    if (device.paused) {
+      return res.status(400).send({
+        message: "Device is paused. Cannot generate data."
+      });
+    }
+
     let count = 0;
     const intervalId = setInterval(async () => {
       if (count >= 50) {
+        clearInterval(intervalId);
+        return;
+      }
+
+      // Check if the device is still not paused before generating a data point
+      const updatedDevice = await Device.findByPk(deviceId);
+      if (updatedDevice.paused) {
         clearInterval(intervalId);
         return;
       }
@@ -141,7 +154,7 @@ exports.generateDummyData = async (req, res) => {
       count++;
     }, 5000);
 
-    res.send({ message: "Data point generation started successfully" });
+    res.send({ message: "Successfully connected" });
   } catch (err) {
     console.error("Error generating dummy data points:", err);
     res.status(500).send({
@@ -155,6 +168,15 @@ exports.getLatestDataPoint = async (req, res) => {
   const deviceId = req.params.deviceId;
 
   try {
+    const device = await Device.findByPk(deviceId);
+    if (!device) {
+      return res.status(404).send({ message: 'Device not found.' });
+    }
+
+    if (device.paused) {
+      return res.status(400).send({ message: 'Device is paused. No new data available.' });
+    }
+
     const latestDataPoint = await DataPoint.findOne({
       where: { deviceId: deviceId },
       order: [['createdAt', 'DESC']],
@@ -162,7 +184,7 @@ exports.getLatestDataPoint = async (req, res) => {
 
     if (latestDataPoint) {
       // Check if the data point has a label of 1 or a value of 6 or 7
-      if ( latestDataPoint.value === 6 || latestDataPoint.value === 7) {
+      if (latestDataPoint.value === 6 || latestDataPoint.value === 7) {
         // TODO: Send notification for the relevant data point
         console.log("Sending notification for data point:", latestDataPoint);
       }

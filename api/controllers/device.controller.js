@@ -77,12 +77,42 @@ exports.delete = (req, res) => {
     })
     .catch((err) => res.status(500).send({ message: err.message }));
 };
+// Pause device
+exports.pauseDevice = async (req, res) => {
+  const id = req.params.deviceId;
+  try {
+    const device = await Device.findByPk(id);
+    if (!device) {
+      return res.status(404).send({ message: `Device with id=${id} not found.` });
+    }
+    
+    await device.update({ paused: true });
+    res.send({ message: "Device paused successfully." });
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error pausing device." });
+  }
+};
 
+// Resume device
+exports.resumeDevice = async (req, res) => {
+  const id = req.params.deviceId;
+  try {
+    const device = await Device.findByPk(id);
+    if (!device) {
+      return res.status(404).send({ message: `Device with id=${id} not found.` });
+    }
+    
+    await device.update({ paused: false });
+    res.send({ message: "Device resumed successfully." });
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Error resuming device." });
+  }
+};
 // Generate dummy devices
 exports.generateDummyData = async (req, res) => {
   const deviceNames = ["Raspberry Pi 1", "Raspberry Pi 2", "Raspberry Pi 3", "Raspberry Pi 4"];
-  const locations = ["Room A", "Room B", "Room C", "Outdoor"];
-  const statuses = ["Active", "Inactive", "Maintenance"];
+  const locations = ["Room 101", "Room 102", "Room 103", "Outdoor"];
+  const statuses = ["Active", "Maintenance"];
 
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
 

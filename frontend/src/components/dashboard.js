@@ -15,8 +15,6 @@ const Dashboard = () => {
     const [deviceData, setDeviceData] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
-    const [isGeneratingDevices, setIsGeneratingDevices] = useState(false);
-    const [isGeneratingData, setIsGeneratingData] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const { addNotification } = useContext(NotificationContext);
     const {notificationCount } = useContext(NotificationContext);
@@ -69,44 +67,6 @@ const Dashboard = () => {
         }
     }, [selectedDevice, fetchDeviceData]);
 
-    // Function to generate dummy devices
-    const generateDummyDevices = async () => {
-        setIsGeneratingDevices(true);
-        try {
-          const response = await axios.post('http://localhost:5001/api/devices/generate');
-          if (response.data.device) {
-            await fetchDevices(); // Refresh the device list after generating a device
-            alert('Device imported successfully!');
-          } else {
-            alert(response.data.message);
-          }
-        } catch (error) {
-          console.error('Error importing device:', error);
-          alert('Error importing device. Please try again.');
-        } finally {
-          setIsGeneratingDevices(false);
-        }
-      };
-
-    // Function to generate dummy data
-    const generateDummyData = async () => {
-        if (!selectedDevice) {
-            alert('Please select a device first.');
-            return;
-        }
-        setIsGeneratingData(true);
-        try {
-            await axios.post(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/generate`);
-            await fetchDeviceData(selectedDevice.id);
-            addNotification(`Connected ${selectedDevice.name} to dashboard`, { value: 6 }); // Pass a dummy dataPoint object
-            alert('Data imported successfully!');
-        } catch (error) {
-            console.error('Error importing data:', error);
-            alert('Error importing data. Please try again.');
-        } finally {
-            setIsGeneratingData(false);
-        }
-    };
     const fetchLatestDataPoint = useCallback(async () => {
         try {
             const response = await axios.get(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/latest`);
@@ -230,24 +190,6 @@ const Dashboard = () => {
             {/* Main content */}
             <div className="main-content">
                 <h1 className="dashboard-title">Dashboard</h1>
-                
-                {/* Data Generation Buttons */}
-                <button 
-                    className="generate-data-btn" 
-                    onClick={generateDummyDevices}
-                    disabled={isGeneratingDevices}
-                >
-                    {isGeneratingDevices ? 'Importing Devices...' : 'Import Devices'}
-                </button>
-
-                <button 
-                className="generate-data-btn" 
-                onClick={generateDummyData}
-                disabled={isGeneratingData || !selectedDevice}
-            >
-                {isGeneratingData ? 'Importing Data...' : 'Import Data'}
-            </button>
-
                 <div className="dashboard-content">
                     {/* Device list */}
                     <div className="device-list">
