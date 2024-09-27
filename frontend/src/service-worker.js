@@ -68,5 +68,10 @@ self.addEventListener('message', (event) => {
     self.skipWaiting();
   }
 });
+// Precache the custom logo image
+precacheAndRoute([
+  { url: 'fall-alert.png', revision: '1' },
+  ...self.__WB_MANIFEST
+]);
 
 // Any other custom service worker logic can go here.

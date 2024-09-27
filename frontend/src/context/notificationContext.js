@@ -49,7 +49,11 @@ export const NotificationProvider = ({ children }) => {
         if (!('Notification' in window)) {
             console.log('This browser does not support desktop notification');
         } else if (Notification.permission === 'granted') {
-            new Notification(message);
+            const options = {
+                body: message,
+                icon: process.env.PUBLIC_URL + '/fall-alert.png'
+            };
+            new Notification('Fall Detection Alert', options);
         }
     };
 
