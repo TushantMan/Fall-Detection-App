@@ -1,10 +1,74 @@
 /* Dashboard.css */
+:root {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --sidebar-bg: #000;
+  --sidebar-icon: #fff;
+  --sidebar-icon-hover: #3b82f6;
+  --card-bg: #2c2c2c;
+  --table-header-bg: #3c3c3c;
+  --table-row-even: #2a2a2a;
+  --table-row-hover: #333333;
+  --button-bg: #3b82f6;
+  --button-text: #ffffff;
+  --button-hover: #2563eb;
+  --button-disabled: #9ca3af;
+  --alert-badge: #ef4444;
+  --active-status: #4ade80;
+  --inactive-status: #f87171;
+  --maintenance-status: #fbbf24;
+  --device-item-bg: #3c3c3c;
+  --device-item-hover-bg: #4c4c4c;
+  --device-item-active-bg: #3b82f6;
+  --device-item-text: #ffffff;
+  --device-item-active-text: #ffffff;
+  --chart-axis-color: #ffffff;
+  --chart-line-color: #3b82f6;
+  --info-label-color: #888888;
+  --info-value-color: #ffffff;
+  --status-active-color: #4ade80;
+  --status-inactive-color: #f87171;
+  --status-maintenance-color: #fbbf24;
+}
+
+.light-mode {
+  --bg-color: #f0f0f0;
+  --text-color: #000000;
+  --sidebar-bg: #ffffff;
+  --sidebar-icon: #333333;
+  --sidebar-icon-hover: #3b82f6;
+  --card-bg: #ffffff;
+  --table-header-bg: #e0e0e0;
+  --table-row-even: #f5f5f5;
+  --table-row-hover: #e8e8e8;
+  --button-bg: #3b82f6;
+  --button-text: #ffffff;
+  --button-hover: #2563eb;
+  --button-disabled: #9ca3af;
+  --alert-badge: #ef4444;
+  --active-status: #4ade80;
+  --inactive-status: #f87171;
+  --maintenance-status: #fbbf24;
+  --device-item-bg: #e0e0e0;
+  --device-item-hover-bg: #d0d0d0;
+  --device-item-active-bg: #3b82f6;
+  --device-item-text: #333333;
+  --device-item-active-text: #ffffff;
+  --chart-axis-color: #333333;
+  --chart-line-color: #3b82f6;
+  --info-label-color: #555555;
+  --info-value-color: #333333;
+  --status-active-color: #22c55e;
+  --status-inactive-color: #ef4444;
+  --status-maintenance-color: #f59e0b;
+}
 
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .dashboard {
@@ -16,7 +80,7 @@ body {
 /* Sidebar styles */
 .sidebar {
   width: 60px;
-  background-color: #000;
+  background-color: var(--sidebar-bg);
   padding: 20px 20px;
   display: flex;
   flex-direction: column;
@@ -25,14 +89,14 @@ body {
 }
 
 .sidebar-icon {
-  color: #fff;
+  color: var(--sidebar-icon);
   font-size: 24px;
   margin-bottom: 30px;
   cursor: pointer;
 }
 
 .sidebar-icon:hover {
-  color: #3b82f6;
+  color: var(--sidebar-icon-hover);
 }
 
 .alert-icon {
@@ -43,7 +107,7 @@ body {
   position: absolute;
   top: -5px;
   right: -5px;
-  background-color: #ef4444;
+  background-color: var(--alert-badge);
   color: #fff;
   font-size: 12px;
   padding: 2px 5px;
@@ -58,8 +122,7 @@ body {
 }
 
 .dashboard-title {
-  font-size: 24px;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
 }
 
 .dashboard-content {
@@ -70,46 +133,67 @@ body {
 
 .device-list {
     width: 200px;
-    background-color: #2c2c2c;
+    background-color: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
 }
 
 .device-info {
     flex-grow: 1;
-    background-color: #2c2c2c;
+    background-color: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
     min-width: 250px;
 }
 
 .info-item {
-  margin-top: 30px;
-    margin-bottom: 10px;
-    margin-left: 40px;
-    margin-right: 40px;
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 20px;
+  
 }
 
 .info-label {
-    font-weight: bold;
-    margin-right: 10px;
+  font-weight: bold;
+  color: var(--info-label-color);
 }
 
 .info-value {
-    color: #ffffff;
+  color: var(--info-value-color);
 }
-
 .status-active {
-    color: #4ade80;
+  color: var(--active-status);
 }
 
 .status-inactive {
-    color: #f87171;
+  color: var(--inactive-status);
 }
 
 .status-maintenance {
-    color: #fbbf24;
+  color: var(--maintenance-status);
 }
+
+.dashboard .info-value,
+.dashboard.light-mode .info-value {
+  color: var(--info-value-color);
+}
+
+/* Preserve status colors */
+.dashboard .status-active,
+.dashboard.light-mode .status-active {
+  color: var(--status-active-color);
+}
+
+.dashboard .status-inactive,
+.dashboard.light-mode .status-inactive {
+  color: var(--status-inactive-color);
+}
+
+.dashboard .status-maintenance,
+.dashboard.light-mode .status-maintenance {
+  color: var(--status-maintenance-color);
+}
+
 
 .data-visualizations {
     flex-basis: 100%;
@@ -120,19 +204,32 @@ body {
 
 .chart-container {
     flex-basis: calc(50% - 10px);
-    background-color: #2c2c2c;
+    background-color: var(--card-bg);
+    color: var(--text-color);
     border-radius: 10px;
     padding: 20px;
 }
 
+.recharts-cartesian-axis-line,
+.recharts-cartesian-axis-tick-line {
+  stroke: var(--chart-axis-color);
+}
+
+.recharts-text {
+  fill: var(--chart-axis-color);
+}
+
+.recharts-line {
+  stroke: var(--chart-line-color);
+}
 .table-container table {
   flex-basis: 100%;
   border-collapse: collapse;
 }
 
 .table-container th {
-  background-color: #3c3c3c;
-  color: #ffffff;
+  background-color: var(--table-header-bg);
+  color: var(--text-color);
   padding: 12px;
   text-align: left;
   cursor: pointer;
@@ -141,7 +238,7 @@ body {
 }
 
 .table-container th:hover {
-  background-color: #4c4c4c;
+  background-color: var(--table-row-hover);
 }
 
 .table-container th svg {
@@ -161,11 +258,11 @@ body {
 }
 
 .table-container tr:nth-child(even) {
-  background-color: #2a2a2a;
+  background-color: var(--table-row-even);
 }
 
 .table-container tr:hover {
-  background-color: #333333;
+  background-color: var(--table-row-hover);
 }
 
 @media (max-width: 800px) {
@@ -184,21 +281,22 @@ body {
 }
 
 .device-item {
-  background-color: #3c3c3c;
+  background-color: var(--device-item-bg);
+  color: var(--device-item-text);
   padding: 10px 15px;
   margin-bottom: 10px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .device-item:hover {
-  background-color: #4c4c4c;
+  background-color: var(--device-item-hover-bg);
 }
 
 .device-item.active {
-  background-color: #3b82f6;
-  color: #ffffff;
+  background-color: var(--device-item-active-bg);
+  color: var(--device-item-active-text);
 }
 
 /* Data visualizations styles */
@@ -210,7 +308,7 @@ body {
 }
 
 .chart-container, .table-container {
-  background-color: #2c2c2c;
+  background-color: var(--card-bg);
   border-radius: 10px;
   padding: 20px;
   width: calc(50% - 10px);
@@ -249,7 +347,7 @@ th {
   z-index: 1000;
   background: none;
   border: none;
-  color: #fff;
+  color: var(--sidebar-icon);
   font-size: 24px;
   cursor: pointer;
 }
@@ -283,30 +381,6 @@ th {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
 }
-.generate-data-btn {
-  background-color: #4CAF50;
-  border: none;
-  color: white;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 10px 0;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-.generate-data-btn:hover {
-  background-color: #45a049;
-}
-
-.generate-data-btn:disabled {
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
-}
 
 /* Adjust the main content to accommodate the new button */
 .main-content {
@@ -326,9 +400,9 @@ th {
 }
 
 .pagination button {
-  background-color: #3b82f6;
+  background-color: var(--button-bg);
   border: none;
-  color: white;
+  color: var(--button-text);
   padding: 8px 16px;
   text-align: center;
   text-decoration: none;
@@ -341,11 +415,11 @@ th {
 }
 
 .pagination button:hover:not(:disabled) {
-  background-color: #2563eb;
+  background-color: var(--button-hover);
 }
 
 .pagination button:disabled {
-  background-color: #9ca3af;
+  background-color: var(--button-disabled);
   cursor: not-allowed;
 }
 

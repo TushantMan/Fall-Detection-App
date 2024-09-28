@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Database, Bell, Settings, User, Menu } from 'lucide-react';
 import axios from 'axios';
 import { NotificationContext } from '../context/notificationContext';
+import { ThemeContext } from '../context/themeContext';
 import './search.css';
 
 const Search = () => {
@@ -15,6 +16,7 @@ const Search = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const {notificationCount } = useContext(NotificationContext);
+    const { isDarkMode } = useContext(ThemeContext);
     const navigate = useNavigate();
 
     const fetchDevices = useCallback(async () => {
@@ -83,7 +85,7 @@ const Search = () => {
     }
 
     return (
-        <div className="dashboard search-page">
+        <div className={`dashboard search-page ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
             {/* Hamburger menu for mobile */}
             <button className="hamburger-menu" onClick={toggleSidebar}>
                 <Menu />

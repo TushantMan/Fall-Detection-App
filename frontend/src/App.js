@@ -18,6 +18,7 @@ import Dashboard from "./components/dashboard";
 import Search from './components/search';
 import Notification from './components/notification';
 import Settings from './components/settings';
+import { ThemeProvider } from './context/themeContext';
 import { NotificationProvider } from './context/notificationContext';
 import { auth } from "./components/firebase";
 
@@ -30,6 +31,7 @@ function App() {
   }, []);
 
   return (
+    <ThemeProvider>
     <NotificationProvider>
     <Router>
       <div className="App">
@@ -69,6 +71,7 @@ function App() {
       </div>
     </Router>
     </NotificationProvider>
+    </ThemeProvider>
   );
 }
 

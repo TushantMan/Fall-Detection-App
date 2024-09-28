@@ -110,7 +110,6 @@ exports.resumeDevice = async (req, res) => {
 };
 // Generate dummy devices
 exports.generateDummyData = async (req, res) => {
-  const deviceNames = ["Raspberry Pi 1", "Raspberry Pi 2", "Raspberry Pi 3", "Raspberry Pi 4"];
   const locations = ["Room 101", "Room 102", "Room 103", "Outdoor"];
   const statuses = ["Active", "Maintenance"];
 
@@ -120,17 +119,22 @@ exports.generateDummyData = async (req, res) => {
     // Check the current number of devices
     const existingDevices = await Device.findAll();
     if (existingDevices.length >= 4) {
-      return res.send({ message: "Maximum number of devices reached. No new device will be generated." });
+      return res.status(400).send({ message: "Maximum number of devices (4) reached. No new device will be generated." });
     }
 
-    // Generate one device
+    // Generate one device without a name first
     const device = await Device.create({
-      name: deviceNames[existingDevices.length],
+      name: "Temporary Name", // This will be updated
       location: getRandomElement(locations),
       status: getRandomElement(statuses)
     });
 
-    res.send({ message: "Dummy device generated successfully", device });
+    // Update the name to match the ID
+    const updatedDevice = await device.update({
+      name: `Raspberry Pi ${device.id}`
+    });
+
+    res.send({ message: "Device added successfully", device: updatedDevice });
   } catch (err) {
     res.status(500).send({
       message: err.message || "Some error occurred while generating the dummy device."

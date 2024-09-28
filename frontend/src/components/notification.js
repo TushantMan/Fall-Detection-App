@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, Database, Search, Settings, User, Menu, Trash2 } from 'lucide-react';
 import { NotificationContext } from '../context/notificationContext';
+import { ThemeContext } from '../context/themeContext';
 import './notification.css';
 import './dashboard.css';
 
@@ -9,13 +10,13 @@ const Notification = () => {
     const { notifications, clearAllNotifications, notificationCount } = useContext(NotificationContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const navigate = useNavigate();
-
+    const { isDarkMode } = useContext(ThemeContext);
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
     return (
-        <div className="dashboard notification-page">
+        <div className={`dashboard notification-page ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
             <button className="hamburger-menu" onClick={toggleSidebar}>
                 <Menu />
             </button>

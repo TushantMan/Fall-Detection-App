@@ -4,6 +4,7 @@ import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown, C
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { NotificationContext } from '../context/notificationContext';
+import { ThemeContext } from '../context/themeContext';
 import "./dashboard.css";
 
 const COLORS = ['#FF0000', '#0088FE'];
@@ -18,7 +19,9 @@ const Dashboard = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const { addNotification } = useContext(NotificationContext);
     const {notificationCount } = useContext(NotificationContext);
+    const { isDarkMode } = useContext(ThemeContext);
     const [latestDataPoint, setLatestDataPoint] = useState(null);
+    
     
     const navigate = useNavigate();
 
@@ -170,7 +173,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="dashboard">
+        <div className={`dashboard ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
             {/* Sidebar and Menu */}
             <button className="hamburger-menu" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                 <Menu />
@@ -204,11 +207,8 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-
-                    {/* Display device data */}
                     {selectedDevice && deviceData && (
                         <>
-                            {/* Device Information */}
                             <div className="device-info">
                                 <h2>Device Information</h2>
                                 <div className="info-item">

@@ -1,14 +1,53 @@
 /* notification.css */
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --sidebar-bg: #000;
+    --sidebar-icon: #fff;
+    --sidebar-icon-hover: #3b82f6;
+    --card-bg: #2c2c2c;
+    --table-header-bg: #3c3c3c;
+    --table-row-even: #2a2a2a;
+    --table-row-hover: #333333;
+    --button-bg: #3b82f6;
+    --button-text: #ffffff;
+    --button-hover: #2563eb;
+    --button-disabled: #9ca3af;
+    --alert-badge: #ef4444;
+    --active-status: #4ade80;
+    --inactive-status: #f87171;
+    --maintenance-status: #fbbf24;
+}
+
+.light-mode {
+    --bg-color: #f0f0f0;
+    --text-color: #333333;
+    --sidebar-bg: #ffffff;
+    --sidebar-icon: #333333;
+    --sidebar-icon-hover: #3b82f6;
+    --card-bg: #ffffff;
+    --table-header-bg: #e0e0e0;
+    --table-row-even: #f5f5f5;
+    --table-row-hover: #e8e8e8;
+    --button-bg: #3b82f6;
+    --button-text: #ffffff;
+    --button-hover: #2563eb;
+    --button-disabled: #9ca3af;
+    --alert-badge: #ef4444;
+    --active-status: #4ade80;
+    --inactive-status: #f87171;
+    --maintenance-status: #fbbf24;
+}
 .notification-page {
     display: flex;
     height: 100vh;
-    background-color: #1a1a1a;
-    color: #ffffff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
 .sidebar {
     width: 60px;
-    background-color: #000;
+    background-color: var(--sidebar-bg);
     padding: 20px 20px;
     display: flex;
     flex-direction: column;
@@ -17,14 +56,14 @@
 }
 
 .sidebar-icon {
-    color: #fff;
+    color: var(--sidebar-icon);
     font-size: 24px;
     margin-bottom: 30px;
     cursor: pointer;
 }
 
 .sidebar-icon:hover, .sidebar-icon.active {
-    color: #3b82f6;
+    color: var(--sidebar-icon-hover);
 }
 
 .alert-icon {
@@ -35,7 +74,7 @@
     position: absolute;
     top: -5px;
     right: -5px;
-    background-color: #ef4444;
+    background-color: var(--alert-badge);
     color: #fff;
     font-size: 12px;
     padding: 2px 5px;
@@ -53,7 +92,7 @@
 }
 
 .notification-item {
-    background-color: #2c2c2c;
+    background-color: var(--card-bg);
     border-radius: 5px;
     padding: 15px;
     margin-bottom: 10px;
@@ -66,7 +105,8 @@
 
 .timestamp {
     font-size: 0.8em;
-    color: #999;
+    color: var(--text-color);
+    opacity: 0.6;
 }
 
 .clear-btn {
@@ -75,7 +115,6 @@
     right: 10px;
     background: none;
     border: none;
-    color: #fff;
     cursor: pointer;
 }
 
@@ -83,8 +122,8 @@
     color: #ff4d4d;
 }
 .clear-all-btn {
-    background-color: #ef4444;
-    color: white;
+    background-color: #ff4d4d;;
+    color: var(--button-text);
     border: none;
     padding: 10px 15px;
     border-radius: 5px;
@@ -117,7 +156,7 @@
         z-index: 1000;
         background: none;
         border: none;
-        color: #fff;
+        color: var(--sidebar-icon);
         font-size: 24px;
         cursor: pointer;
     }

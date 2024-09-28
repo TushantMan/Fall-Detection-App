@@ -7,6 +7,66 @@
   pointer-events: none;
 }
 
+:root {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --card-bg-color: #2c2c2c;
+  --button-bg-color: #3b82f6;
+  --button-text-color: #ffffff;
+  --toggle-bg-color: #444;
+  --toggle-active-color: #2760fb;
+  --sidebar-bg-color: #000000;
+  --sidebar-icon-color: #ffffff;
+  --sidebar-icon-hover-color: #3b82f6;
+}
+
+.light-mode {
+  --bg-color: #f0f0f0;
+  --text-color: #333333;
+  --card-bg-color: #ffffff;
+  --button-bg-color: #3b82f6;
+  --button-text-color: #ffffff;
+  --toggle-bg-color: #cccccc;
+  --toggle-active-color: #2760fb;
+  --sidebar-bg-color: #f0f0f0;
+  --sidebar-icon-color: #333333;
+  --sidebar-icon-hover-color: #3b82f6;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.dashboard, .settings-page, .search-page, .notification-page, .profile-page {
+  background-color: var(--bg-color);
+}
+
+.sidebar {
+  background-color: var(--sidebar-bg-color);
+}
+
+.sidebar-icon {
+  color: var(--sidebar-icon-color);
+}
+
+.sidebar-icon:hover {
+  color: var(--sidebar-icon-hover-color);
+}
+
+.settings-container, .search-container, .notification-container, .profile-container {
+  background-color: var(--card-bg-color);
+}
+
+.toggle-btn {
+  background-color: var(--toggle-bg-color);
+}
+
+.toggle-btn.enabled {
+  background-color: var(--toggle-active-color);
+}
+
+/* Add more specific style overrides as needed for other components */
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

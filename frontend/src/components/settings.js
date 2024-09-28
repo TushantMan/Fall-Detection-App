@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Database, Search, Settings as SettingsIcon, User, Menu } from 'lucide-react';
+import { Bell, Database, Search, Settings as SettingsIcon, User, Menu, Sun, Moon } from 'lucide-react';
 import { NotificationContext } from '../context/notificationContext';
+import { ThemeContext } from '../context/themeContext';
 import axios from 'axios';
 import './settings.css';
 import './dashboard.css';
@@ -13,6 +14,7 @@ const Settings = () => {
         notificationCount,
         addNotification
     } = useContext(NotificationContext);
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isGeneratingDevices, setIsGeneratingDevices] = useState(false);
     const [devices, setDevices] = useState([]);
@@ -53,7 +55,11 @@ const Settings = () => {
             }
         } catch (error) {
             console.error('Error importing device:', error);
-            addNotification('Error importing device. Please try again.', { value: 0 });
+            if (error.response && error.response.status === 400) {
+                alert(error.response.data.message);
+            } else {
+                addNotification('Error importing device. Please try again.', { value: 0 });
+            }
         } finally {
             setIsGeneratingDevices(false);
         }
@@ -165,6 +171,31 @@ const Settings = () => {
                         }
                     </p>
                     </div>
+                    
+                    <div className="settings-container">
+                    <div className="setting-item">
+                        <span>Theme</span>
+                        <button
+                            onClick={toggleTheme}
+                            className={`toggle-btn ${isDarkMode ? 'enabled' : 'disabled'}`}
+                        >
+                            <span className="toggle-slider"></span>
+                            <div className="theme-toggle-icon-container">
+                                <span className="theme-toggle-icon sun">
+                                    <Sun size={20} />
+                                </span>
+                                <span className="theme-toggle-icon moon">
+                                    <Moon size={20} />
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <p className="setting-description">
+                        Switch between dark and light mode.
+                    </p>
+                    </div>
+
+
                     <div className="settings-container">
                     <div className="devices-section">
                         <h2>Devices</h2>

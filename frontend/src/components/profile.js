@@ -4,6 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { Database, Search, Bell, Settings, User, Menu } from 'lucide-react';
 import { NotificationContext } from '../context/notificationContext';
+import { ThemeContext } from '../context/themeContext';
 import "./auth.css";
 import "./dashboard.css";
 
@@ -12,7 +13,7 @@ function Profile() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const {notificationCount } = useContext(NotificationContext);
   const navigate = useNavigate();
-
+  const { isDarkMode } = useContext(ThemeContext);
   const fetchUserData = async () => {
     auth.onAuthStateChanged(async (user) => {
       console.log(user);
@@ -50,7 +51,7 @@ function Profile() {
   };
 
   return (
-    <div className="dashboard">
+    <div className={`dashboard-profile ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
       {/* Hamburger menu for mobile */}
       <button className="hamburger-menu" onClick={toggleSidebar}>
         <Menu />
@@ -70,9 +71,9 @@ function Profile() {
                 <Settings className="sidebar-icon" onClick={() => navigate('/settings')}/>
         <User className="sidebar-icon active" />
       </div>
-
+      <div className="main-content-profile">
       {/* Main content */}
-      <div className="auth-inner">
+      <div className="profile-content">
         {userDetails ? (
           <>
             <div style={{ display: "flex", justifyContent: "center" }}>
@@ -95,6 +96,7 @@ function Profile() {
           <p>Loading...</p>
         )}
       </div>
+    </div>
     </div>
   );
 }

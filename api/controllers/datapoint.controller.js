@@ -95,6 +95,7 @@ exports.delete = (req, res) => {
 };
 
 // Generate dummy data points
+// Generate dummy data points
 exports.generateDummyData = async (req, res) => {
   const deviceId = req.params.deviceId;
   const areas = ["North", "South", "East", "West"];
@@ -128,30 +129,42 @@ exports.generateDummyData = async (req, res) => {
         return;
       }
 
-      // Check if the device is still not paused before generating a data point
-      const updatedDevice = await Device.findByPk(deviceId);
-      if (updatedDevice.paused) {
+      try {
+        // Check if the device is still not paused before generating a data point
+        const updatedDevice = await Device.findByPk(deviceId);
+        if (!updatedDevice) {
+          console.log(`Device ${deviceId} not found. Stopping data generation.`);
+          clearInterval(intervalId);
+          return;
+        }
+
+        if (updatedDevice.paused) {
+          console.log(`Device ${deviceId} is paused. Stopping data generation.`);
+          clearInterval(intervalId);
+          return;
+        }
+
+        const category = getRandomElement(categories);
+        const dataPoint = await DataPoint.create({
+          deviceId: device.id,
+          timestamp: new Date(),
+          value: category.value,
+          category: category.name,
+          label: category.label,
+          area: getRandomElement(areas)
+        });
+        console.log("Generated data point:", dataPoint);
+
+        if (dataPoint.value === 6 || dataPoint.value === 7) {
+          // TODO: Send notification for the relevant data point
+          console.log("Sending notification for data point:", dataPoint);
+        }
+
+        count++;
+      } catch (error) {
+        console.error("Error generating data point:", error);
         clearInterval(intervalId);
-        return;
       }
-
-      const category = getRandomElement(categories);
-      const dataPoint = await DataPoint.create({
-        deviceId: device.id,
-        timestamp: new Date(),
-        value: category.value,
-        category: category.name,
-        label: category.label,
-        area: getRandomElement(areas)
-      });
-      console.log("Generated data point:", dataPoint);
-
-      if (dataPoint.value === 6 || dataPoint.value === 7) {
-        // TODO: Send notification for the relevant data point
-        console.log("Sending notification for data point:", dataPoint);
-      }
-
-      count++;
     }, 5000);
 
     res.send({ message: "Successfully connected" });
