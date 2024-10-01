@@ -21,14 +21,27 @@ import Settings from './components/settings';
 import { ThemeProvider } from './context/themeContext';
 import { NotificationProvider } from './context/notificationContext';
 import { auth } from "./components/firebase";
+import Loading from './context/loader';
+
 
 function App() {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
+      setLoading(false);
     });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
+
+  if (loading) {
+    // You can replace this with a loading spinner or any other loading indicator
+    return <Loading />;
+  }
 
   return (
     <ThemeProvider>
