@@ -25,17 +25,22 @@ import Loading from './context/loader';
 
 
 function App() {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
       setLoading(false);
     });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
     // You can replace this with a loading spinner or any other loading indicator
-    return <Loading />;
+    return <Loading/>;
   }
 
   return (
