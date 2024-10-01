@@ -19,6 +19,8 @@ const Settings = () => {
     const [isGeneratingDevices, setIsGeneratingDevices] = useState(false);
     const [devices, setDevices] = useState([]);
     const [generatingDataForDevice, setGeneratingDataForDevice] = useState({});
+    const [language, setLanguage] = useState('en');
+    const [fontSize, setFontSize] = useState(localStorage.getItem('fontSize') || 'medium');
     const navigate = useNavigate();
 
     const fetchDevices = useCallback(async () => {
@@ -34,6 +36,10 @@ const Settings = () => {
     useEffect(() => {
         fetchDevices();
     }, [fetchDevices]);
+
+    useEffect(() => {
+        document.documentElement.style.fontSize = fontSize === 'small' ? '12px' : fontSize === 'large' ? '18px' : '16px';
+    }, [fontSize]);
 
     const handleTogglePush = async () => {
         await togglePushNotifications();
@@ -131,10 +137,46 @@ const Settings = () => {
         }
     };
 
-    
+    /* global google */
+    // Function to initialize Google Translate
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+    }
+
+    // Function to initialize Google Translate
+    function initializeGoogleTranslate() {
+        const translateElement = document.createElement('div');
+        translateElement.id = 'google_translate_element';
+        document.body.appendChild(translateElement);
+        googleTranslateElementInit();
+    }
+
+    // Function to toggle Google Translate
+    function toggleGoogleTranslate(enable) {
+        if (enable) {
+            initializeGoogleTranslate();
+        } else {
+            const translateElement = document.getElementById('google_translate_element');
+            if (translateElement) {
+                translateElement.remove();
+            }
+        }
+    }
+
+    const handleLanguageChange = (event) => {
+        const selectedLanguage = event.target.value;
+        setLanguage(selectedLanguage);
+        toggleGoogleTranslate(selectedLanguage !== 'en');
+    };
+
+    const handleFontSizeChange = (event) => {
+        const selectedFontSize = event.target.value;
+        setFontSize(selectedFontSize);
+        localStorage.setItem('fontSize', selectedFontSize);
+    };
 
     return (
-        <div className="dashboard settings-page">
+        <div className="dashboard settings-page" style={{ fontSize: fontSize === 'small' ? '10px' : fontSize === 'large' ? '20px' : '16px' }}>
             <button className="hamburger-menu" onClick={toggleSidebar}>
                 <Menu />
             </button>
@@ -170,9 +212,9 @@ const Settings = () => {
                                 : "Push notifications are not enabled. Click the toggle and allow notifications in your browser to enable them."
                         }
                     </p>
-                    </div>
-                    
-                    <div className="settings-container">
+                </div>
+                
+                <div className="settings-container">
                     <div className="setting-item">
                         <span>Theme</span>
                         <button
@@ -193,10 +235,36 @@ const Settings = () => {
                     <p className="setting-description">
                         Switch between dark and light mode.
                     </p>
+                </div>
+
+                <div className="settings-container">
+                    <div className="setting-item">
+                        <span>Language</span>
+                        <select value={language} onChange={handleLanguageChange}>
+                            <option value="en">English</option>
+                            <option value="es">Other</option>
+                        </select>
                     </div>
+                    <p className="setting-description">
+                        Select the language for the application.
+                    </p>
+                </div>
 
+                <div className="settings-container">
+                    <div className="setting-item">
+                        <span>Font Size</span>
+                        <select value={fontSize} onChange={handleFontSizeChange}>
+                            <option value="small">Small</option>
+                            <option value="medium">Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <p className="setting-description">
+                        Select the font size for the application.
+                    </p>
+                </div>
 
-                    <div className="settings-container">
+                <div className="settings-container">
                     <div className="devices-section">
                         <h2>Devices</h2>
                         <button

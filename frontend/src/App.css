@@ -18,6 +18,7 @@
   --sidebar-bg-color: #000000;
   --sidebar-icon-color: #ffffff;
   --sidebar-icon-hover-color: #3b82f6;
+  --app-font-size: 16px;
 }
 
 .light-mode {
@@ -36,6 +37,7 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
+  font-size: var(--app-font-size);
 }
 
 .dashboard, .settings-page, .search-page, .notification-page, .profile-page {
