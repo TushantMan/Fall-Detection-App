@@ -240,7 +240,7 @@ const Settings = () => {
                 <div className="settings-container">
                     <div className="setting-item">
                         <span>Language</span>
-                        <select value={language} onChange={handleLanguageChange}>
+                        <select value={language} onChange={handleLanguageChange} className='dropDown'>
                             <option value="en">English</option>
                             <option value="es">Other</option>
                         </select>
@@ -253,7 +253,7 @@ const Settings = () => {
                 <div className="settings-container">
                     <div className="setting-item">
                         <span>Font Size</span>
-                        <select value={fontSize} onChange={handleFontSizeChange}>
+                        <select value={fontSize} onChange={handleFontSizeChange} className='dropDown'>
                             <option value="small">Small</option>
                             <option value="medium">Medium</option>
                             <option value="large">Large</option>
