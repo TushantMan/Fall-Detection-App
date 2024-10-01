@@ -21,19 +21,22 @@ import Settings from './components/settings';
 import { ThemeProvider } from './context/themeContext';
 import { NotificationProvider } from './context/notificationContext';
 import { auth } from "./components/firebase";
+import Loading from './context/loader';
+
 
 function App() {
   const [user, setUser] = useState();
-
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
+      setLoading(false);
     });
-
-    // Retrieve and apply the saved font size from localStorage
-    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
-    document.documentElement.style.fontSize = savedFontSize === 'small' ? '12px' : savedFontSize === 'large' ? '18px' : '16px';
   }, []);
+
+  if (loading) {
+    // You can replace this with a loading spinner or any other loading indicator
+    return <Loading />;
+  }
 
   return (
     <ThemeProvider>
