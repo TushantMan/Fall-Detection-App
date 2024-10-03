@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Menu, X, Radar, Siren, Pointer, TabletSmartphone, Zap, EyeOff} from 'lucide-react';
 import './landing.css';
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,7 @@ import { useNavigate } from "react-router-dom";
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -18,6 +14,43 @@ const LandingPage = () => {
     }, 100000);
     return () => clearInterval(interval);
   }, []);
+  // Scroll reveal functionality
+  const revealRefs = useRef([]);
+
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    const currentRefs = revealRefs.current;
+    currentRefs.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => {
+      currentRefs.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
+    };
+  }, []);
+
+  const addToRefs = (el) => {
+    if (el && !revealRefs.current.includes(el)) {
+      revealRefs.current.push(el);
+    }
+  };
 
   const features = [
     {
@@ -62,7 +95,7 @@ const LandingPage = () => {
       </header>
 
       <main>
-        <section className={`hero ${isVisible ? 'visible' : ''}`} id='Home'>
+        <section className="hero scroll-reveal" ref={addToRefs} id='Home'>
           <div className="hero-content">
             <h1>Minimize Risks, Maximize Safety</h1>
             <p>Real-time fall detection using radar, no wearables, ensuring privacy and non-invasive monitoring.</p>
@@ -73,8 +106,8 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <h1 className='main-stats'>Why Choose Fall Guys over Others</h1>
-        <section className={`stats ${isVisible ? 'visible' : ''}`} id='choose'>
+        <h1 className='main-stats scroll-reveal' ref={addToRefs}>Why Choose Fall Guys over Others</h1>
+        <section className="stats scroll-reveal" ref={addToRefs} id='choose'>
         
           <div className="stat">
             <Zap size={60} />
@@ -94,7 +127,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section className="features" id='enterprise'>
+        <section className="features scroll-reveal" ref={addToRefs} id='enterprise'>
           <h2>Take a deeper dive into a new way to visualize fall data</h2>
           <div className="feature-tabs">
             {features.map((feature, index) => (
@@ -119,7 +152,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section className="teams">
+        <section className="teams scroll-reveal" ref={addToRefs}>
           <h2>Do more with AI that works where you do</h2>
           <p>Fall Guys securely scales up to support the big data using Machine Learning and AI.</p>
           <div className="team-logos">
@@ -136,7 +169,7 @@ const LandingPage = () => {
           </div>
         </section>
         
-        <section className="features-section" id='features'>
+        <section className="features-section scroll-reveal" ref={addToRefs} id='features'>
         <h2 className='title-features'>Powerful Features</h2>
         <div className="feature-cards">
           {features.map((feature, index) => (
@@ -152,7 +185,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-        <section className="getting-started" id='works'>
+      <section className="getting-started scroll-reveal" ref={addToRefs} id='works'>
           <h2 className='title-features'>How It Works</h2>
           <div className="step">
             <div>
@@ -180,7 +213,7 @@ const LandingPage = () => {
 
       
     </div>
-    <footer className="footer">
+    <footer className="footer scroll-reveal" ref={addToRefs}>
         <div className="footer-content">
           <img src="Fall_Guys_Logo.png" alt="Fall Logo" className="logo-footer" />
         </div>

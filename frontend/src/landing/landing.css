@@ -679,3 +679,36 @@ a:focus, button:focus, input:focus, select:focus, textarea:focus {
     border: 2px solid ButtonText;
   }
 }
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Adjust the existing .hero, .stats, .features, .teams, .getting-started styles */
+.hero, .stats, .features, .teams, .getting-started {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero, .stats, .features, .teams, .getting-started {
+  animation: fadeInUp 1s ease-out;
+}
