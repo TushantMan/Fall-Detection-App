@@ -65,7 +65,16 @@ body {
     border-radius: 5px;
     transition: background-color 0.3s;
   }
-  
+  .back-button {
+    background-color: #0065fd00;
+    border: none;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    border: 2px solid #fff;
+    transition: background-color 0.3s;
+  }
   .btn-primary:hover {
     background-color: #0b5ed7;
   }

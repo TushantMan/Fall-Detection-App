@@ -22,6 +22,7 @@ import { ThemeProvider } from './context/themeContext';
 import { NotificationProvider } from './context/notificationContext';
 import { auth } from "./components/firebase";
 import Loading from './context/loader';
+import LandingPage from "./landing/landing";
 
 
 function App() {
@@ -34,13 +35,17 @@ function App() {
       setLoading(false);
     });
 
+    // Retrieve and apply the saved font size from localStorage
+    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+    document.documentElement.style.fontSize = savedFontSize === 'small' ? '12px' : savedFontSize === 'large' ? '18px' : '16px';
+
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
   if (loading) {
     // You can replace this with a loading spinner or any other loading indicator
-    return <Loading/>;
+    return <Loading />;
   }
 
   return (
@@ -51,7 +56,7 @@ function App() {
             <Routes>
               <Route
                 path="/"
-                element={user ? <Navigate to="/dashboard" /> : <Login />}
+                element={<LandingPage />}  // Display LandingPage when the app starts
               />
               <Route path="/login" element={
                 <div className="auth-wrapper">
@@ -75,10 +80,14 @@ function App() {
                   </div>
                 </div>
               } />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/dashboard"
+                element={user ? <Dashboard /> : <Navigate to="/login" />}
+              />
               <Route path="/search" element={<Search />} />
               <Route path="/notification" element={<Notification />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/landing-page" element={<LandingPage />} />
             </Routes>
             <ToastContainer />
           </div>

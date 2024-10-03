@@ -69,6 +69,11 @@ function Login() {
           Login now
         </button>
       </form>
+      <div className="goBack">
+        <button type="go" className="back-button" onClick={() => navigate('/landing-page')}>
+          Go to Main Page
+        </button>
+      </div>
     </div>
   );
 }
