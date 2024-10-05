@@ -96,7 +96,7 @@ const Search = () => {
 
             {/* Sidebar */}
             <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                <Database className="sidebar-icon" onClick={() => navigate('/')} />
+            <Database className="sidebar-icon" onClick={() => navigate('/dashboard')} />
                 <SearchIcon className="sidebar-icon active" />
                 <div className="sidebar-icon alert-icon" onClick={() => navigate('/notification')}>
                     <Bell />

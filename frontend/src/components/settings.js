@@ -182,7 +182,7 @@ const Settings = () => {
             </button>
             {isSidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
             <div className={`sidebar ${isSidebarOpen ? 'open' : ''}`}>
-                <Database className="sidebar-icon" onClick={() => navigate('/')} />
+                <Database className="sidebar-icon" onClick={() => navigate('/dashboard')} />
                 <Search className="sidebar-icon" onClick={() => navigate('/search')} />
                 <div className="sidebar-icon alert-icon" onClick={() => navigate('/notification')}>
                     <Bell />
