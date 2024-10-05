@@ -134,11 +134,14 @@
     color: var(--text-color);
     border-color: var(--text-color);
 }
-
+.search-results {
+    overflow-x: auto; /* Add horizontal scroll for small screens */
+}
 .search-results table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    min-width: 600px; 
 }
 
 .search-results th,
@@ -147,10 +150,16 @@
     text-align: left;
     border-bottom: 1px solid #444;
     background-color: var(--card-bg);
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .search-results th {
     background-color: var(--table-header-bg);
+    position: sticky;
+    top: 0; /* Stick headers to the top */
+    z-index: 10;
     
 }
 
@@ -222,5 +231,24 @@
 
     .device-select {
         width: 100%;
+    }
+
+    .search-results th,
+    .search-results td {
+        padding: 8px 5px;
+        font-size: 14px; 
+    }
+}
+
+@media (max-width: 480px) {
+    .search-input,
+    .device-select {
+        font-size: 14px;
+    }
+
+    .search-results th,
+    .search-results td {
+        padding: 6px 3px;
+        font-size: 12px;
     }
 }

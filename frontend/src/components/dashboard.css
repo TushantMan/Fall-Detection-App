@@ -311,7 +311,7 @@ body {
   background-color: var(--card-bg);
   border-radius: 10px;
   padding: 20px;
-  width: calc(50% - 10px);
+  width: 100%;
 }
 
 .chart-container h2, .table-container h2 {
@@ -369,8 +369,28 @@ th {
   .sidebar.open {
       transform: translateX(60px);
   }
+  .chart-container, .table-container {
+    width: 100%;
+  }
 }
+@media (max-width: 526px) {
+  .chart-container, .table-container {
+    padding: 10px;
+  }
 
+  .data-visualizations {
+    gap: 10px;
+  }
+
+  .table-container table {
+    font-size: 14px;
+  }
+
+  .table-container th,
+  .table-container td {
+    padding: 8px 5px;
+  }
+}
 /* Sidebar overlay */
 .sidebar-overlay {
   display: none;
