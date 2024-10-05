@@ -4,14 +4,14 @@
   "description": "Minimize Risks, Maximize Safety: Real-time fall detection using radar, no wearables, ensuring privacy and non-invasive monitoring.",
   "screenshots": [
     {
-      "src": "Desktop-1200.png",
+      "src": "Desktop-1200-4.png",
       "sizes": "1257x799",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
       "src": "Mobile-800.png",
-      "sizes": "800x1250",
+      "sizes": "800x1400",
       "type": "image/png",
       "form_factor": "narrow"
     }
