@@ -33,7 +33,8 @@ const LandingPage = () => {
     };
 
     const observer = new IntersectionObserver(observerCallback, observerOptions);
-
+    
+    
     const currentRefs = revealRefs.current;
     currentRefs.forEach((ref) => {
       if (ref) observer.observe(ref);
