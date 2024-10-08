@@ -1,14 +1,22 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,BarChart, Bar, Legend } from 'recharts';
 import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { NotificationContext } from '../context/notificationContext';
 import { ThemeContext } from '../context/themeContext';
+import FallMap from './fallmap';
 import "./dashboard.css";
 
-const COLORS = ['#FF0000', '#0088FE'];
+const COLORS = ['#FF0000', '#0088FE', '#00ff40','#eeff00'];
 const ITEMS_PER_PAGE = 10;
+
+const AREA_COORDINATES = {
+    'Room 101': { latitude: -37.72126655951144, longitude: 145.04660447207385 },
+    'Room 102': { latitude: -37.71913798559095, longitude: 145.0457860400447 },
+    'Room 103': { latitude: -37.721042911261975, longitude: 145.05266516274372 },
+    'Room 104': { latitude: -37.719899341263016, longitude: 145.0484659363904 },
+  };
 
 const Dashboard = () => {
     const [devices, setDevices] = useState([]);
@@ -22,7 +30,7 @@ const Dashboard = () => {
     const { notificationCount } = useContext(NotificationContext);
     const { isDarkMode } = useContext(ThemeContext);
     const [latestDataPoint, setLatestDataPoint] = useState(null);
-    
+    const [areaFallData, setAreaFallData] = useState([]);
     const navigate = useNavigate();
 
     // Function to fetch devices
@@ -38,6 +46,23 @@ const Dashboard = () => {
         }
     }, []);
 
+    const processAreaFallData = useMemo(() => (data) => {
+        const areaFalls = data.reduce((acc, point) => {
+            if (point.label === 1) { // Assuming 1 represents a fall
+                if (!acc[point.area]) {
+                    acc[point.area] = { 
+                        area: point.area,
+                        falls: 0,
+                        ...AREA_COORDINATES[point.area] // Add coordinates from our frontend mapping
+                    };
+                }
+                acc[point.area].falls += 1;
+            }
+            return acc;
+        }, {});
+
+        return Object.values(areaFalls).sort((a, b) => b.falls - a.falls);
+    }, []);
     // Function to fetch data for all devices
     const fetchAllDevicesData = useCallback(async () => {
         try {
@@ -47,17 +72,20 @@ const Dashboard = () => {
             // Process data for charts
             const lineChartData = processLineChartData(data);
             const pieChartData = processPieChartData(data);
+            const areaFallData = processAreaFallData(data);
 
             setAllDevicesData({
                 lineChart: lineChartData,
                 pieChart: pieChartData,
                 tableData: data
             });
+            setAreaFallData(areaFallData);
         } catch (error) {
             console.error('Error fetching data for all devices:', error);
         }
-    }, []);
+    }, [processAreaFallData]); 
 
+    
     // Function to fetch data for a selected device
     const fetchDeviceData = useCallback(async (deviceId) => {
         if (deviceId === 'all') {
@@ -103,7 +131,7 @@ const Dashboard = () => {
                 if (!latestDataPoint || newDataPoint.id !== latestDataPoint.id) {
                     setLatestDataPoint(newDataPoint);
                     if (newDataPoint.value === 6 || newDataPoint.value === 7) {
-                        addNotification(`New fall detected for ${selectedDevice.name}`, newDataPoint);
+                        addNotification(`New fall detected by ${selectedDevice.name} in ${newDataPoint.area}`, newDataPoint);
                     }
                 }
             } catch (error) {
@@ -329,7 +357,30 @@ const Dashboard = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
-
+                                {selectedDevice.id === 'all' && (
+                                <div className="area-fall-data-container">
+                                    <div className="chart-container">
+                                        <h2>Falls by Area</h2>
+                                        <ResponsiveContainer width="100%" height={400}>
+                                            <BarChart data={areaFallData}>
+                                                <XAxis dataKey="area" />
+                                                <YAxis />
+                                                <Tooltip />
+                                                <Legend />
+                                                <Bar dataKey="falls" fill="#8884d8">
+                                                    {areaFallData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                    ))}
+                                                </Bar>
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div className="chart-container">
+                                        <h2>Fall Locations</h2>
+                                        <FallMap areaFallData={areaFallData} />
+                                    </div>
+                                </div>
+                            )}
                                 {/* Table */}
                                 <div className="table-container">
                                     <h2>{selectedDevice.name} Table Data</h2>
