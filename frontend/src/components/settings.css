@@ -323,7 +323,7 @@
 }
 
 /* Existing styles for toggle button, etc. remain the same */
-@media (max-width: 1370px) and (min-width: 701px) {
+@media (max-width: 1370px) and (min-width: 1015px) {
     .device-grid-container {
         overflow-x: visible;
     }
@@ -343,7 +343,7 @@
 }
 
 /* Responsive styles */
-@media (max-width: 700px) {
+@media (max-width: 1014px) {
     .device-grid-container {
         overflow-x: visible;
     }
