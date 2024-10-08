@@ -8,7 +8,8 @@ exports.create = (req, res) => {
     name: req.body.name,
     deviceId: req.body.deviceId,
     location: req.body.location,
-    status: req.body.status
+    status: req.body.status,
+    area: req.body.location
   };
 
   Device.create(device)
@@ -110,34 +111,32 @@ exports.resumeDevice = async (req, res) => {
 };
 // Generate dummy devices
 exports.generateDummyData = async (req, res) => {
-  const locations = ["Room 101", "Room 102", "Room 103", "Outdoor"];
+  const rooms = ["Room 101", "Room 102", "Room 103", "Room 104"];
   const statuses = ["Active", "Maintenance"];
 
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
 
   try {
-    // Check the current number of devices
     const existingDevices = await Device.findAll();
     if (existingDevices.length >= 4) {
-      return res.status(400).send({ message: "Maximum number of devices (4) reached. No new device will be generated." });
+      return res.status(400).send({ message: "Maximum number of devices (4) reached. No new device will be added." });
     }
 
-    // Generate one device without a name first
+    // Determine the next available room
+    const nextRoomIndex = existingDevices.length;
+    const nextRoom = rooms[nextRoomIndex];
+
     const device = await Device.create({
-      name: "Temporary Name", // This will be updated
-      location: getRandomElement(locations),
-      status: getRandomElement(statuses)
+      name: `Raspberry Pi ${nextRoomIndex + 1}`,
+      location: nextRoom,
+      status: getRandomElement(statuses),
+      area: nextRoom  // Set area to be the same as location
     });
 
-    // Update the name to match the ID
-    const updatedDevice = await device.update({
-      name: `Raspberry Pi ${device.id}`
-    });
-
-    res.send({ message: "Device added successfully", device: updatedDevice });
+    res.send({ message: "Device added successfully", device: device });
   } catch (err) {
     res.status(500).send({
       message: err.message || "Some error occurred while generating the dummy device."
     });
   }
-};
+}

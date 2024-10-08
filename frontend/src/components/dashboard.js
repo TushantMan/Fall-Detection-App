@@ -14,14 +14,14 @@ const Dashboard = () => {
     const [devices, setDevices] = useState([]);
     const [selectedDevice, setSelectedDevice] = useState(null);
     const [deviceData, setDeviceData] = useState(null);
+    const [allDevicesData, setAllDevicesData] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
     const [currentPage, setCurrentPage] = useState(1);
     const { addNotification } = useContext(NotificationContext);
-    const {notificationCount } = useContext(NotificationContext);
+    const { notificationCount } = useContext(NotificationContext);
     const { isDarkMode } = useContext(ThemeContext);
     const [latestDataPoint, setLatestDataPoint] = useState(null);
-    
     
     const navigate = useNavigate();
 
@@ -31,32 +31,56 @@ const Dashboard = () => {
             const response = await axios.get('http://localhost:5001/api/devices');
             setDevices(response.data);
             if (response.data.length > 0) {
-                setSelectedDevice(response.data[0]); // Select the first device by default
+                setSelectedDevice({ id: 'all', name: 'All Devices' }); // Select 'All Devices' by default
             }
         } catch (error) {
             console.error('Error fetching devices:', error);
         }
     }, []);
 
-    // Function to fetch data for a selected device
-    const fetchDeviceData = useCallback(async (deviceId) => {
+    // Function to fetch data for all devices
+    const fetchAllDevicesData = useCallback(async () => {
         try {
-            const response = await axios.get(`http://localhost:5001/api/devices/${deviceId}/dataPoints`);
+            const response = await axios.get('http://localhost:5001/api/datapoints');
             const data = response.data;
             
             // Process data for charts
             const lineChartData = processLineChartData(data);
             const pieChartData = processPieChartData(data);
 
-            setDeviceData({
+            setAllDevicesData({
                 lineChart: lineChartData,
                 pieChart: pieChartData,
                 tableData: data
             });
         } catch (error) {
-            console.error('Error fetching device data:', error);
+            console.error('Error fetching data for all devices:', error);
         }
-    }, []); // Memoize this function to prevent unnecessary re-renders
+    }, []);
+
+    // Function to fetch data for a selected device
+    const fetchDeviceData = useCallback(async (deviceId) => {
+        if (deviceId === 'all') {
+            await fetchAllDevicesData();
+        } else {
+            try {
+                const response = await axios.get(`http://localhost:5001/api/devices/${deviceId}/dataPoints`);
+                const data = response.data;
+                
+                // Process data for charts
+                const lineChartData = processLineChartData(data);
+                const pieChartData = processPieChartData(data);
+
+                setDeviceData({
+                    lineChart: lineChartData,
+                    pieChart: pieChartData,
+                    tableData: data
+                });
+            } catch (error) {
+                console.error('Error fetching device data:', error);
+            }
+        }
+    }, [fetchAllDevicesData]);
 
     // Fetch devices once the component is mounted
     useEffect(() => {
@@ -71,24 +95,25 @@ const Dashboard = () => {
     }, [selectedDevice, fetchDeviceData]);
 
     const fetchLatestDataPoint = useCallback(async () => {
-        try {
-            const response = await axios.get(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/latest`);
-            const newDataPoint = response.data;
-    
-            if (!latestDataPoint || newDataPoint.id !== latestDataPoint.id) {
-                setLatestDataPoint(newDataPoint);
-                if (newDataPoint.value === 6 || newDataPoint.value === 7) {
-                    addNotification(`New fall detected for ${selectedDevice.name}`, newDataPoint);
+        if (selectedDevice && selectedDevice.id !== 'all') {
+            try {
+                const response = await axios.get(`http://localhost:5001/api/devices/${selectedDevice.id}/dataPoints/latest`);
+                const newDataPoint = response.data;
+        
+                if (!latestDataPoint || newDataPoint.id !== latestDataPoint.id) {
+                    setLatestDataPoint(newDataPoint);
+                    if (newDataPoint.value === 6 || newDataPoint.value === 7) {
+                        addNotification(`New fall detected for ${selectedDevice.name}`, newDataPoint);
+                    }
                 }
+            } catch (error) {
+                console.error('Error fetching the latest data point:', error);
             }
-        } catch (error) {
-            console.error('Error fetching the latest data point:', error);
         }
     }, [selectedDevice, latestDataPoint, addNotification]);
     
-    
     useEffect(() => {
-        if (selectedDevice) {
+        if (selectedDevice && selectedDevice.id !== 'all') {
             const intervalId = setInterval(fetchLatestDataPoint, 5000);
             return () => {
                 clearInterval(intervalId);
@@ -97,7 +122,7 @@ const Dashboard = () => {
     }, [selectedDevice, fetchLatestDataPoint]);
 
     useEffect(() => {
-        if (latestDataPoint) {
+        if (latestDataPoint && selectedDevice && selectedDevice.id !== 'all') {
             fetchDeviceData(selectedDevice.id);
         }
     }, [latestDataPoint, selectedDevice, fetchDeviceData]);
@@ -160,7 +185,9 @@ const Dashboard = () => {
         });
     };
 
-    const sortedData = deviceData ? getSortedData(deviceData.tableData) : [];
+    const sortedData = selectedDevice?.id === 'all' ? 
+        (allDevicesData ? getSortedData(allDevicesData.tableData) : []) : 
+        (deviceData ? getSortedData(deviceData.tableData) : []);
     const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
 
     const getPaginatedData = () => {
@@ -197,6 +224,13 @@ const Dashboard = () => {
                     {/* Device list */}
                     <div className="device-list">
                         <h2>Devices</h2>
+                        <div 
+                            key="all"
+                            className={`device-item ${selectedDevice?.id === 'all' ? 'active' : ''}`}
+                            onClick={() => setSelectedDevice({ id: 'all', name: 'All Devices' })}
+                        >
+                            All Devices
+                        </div>
                         {devices.map((device) => (
                             <div 
                                 key={device.id} 
@@ -207,70 +241,79 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-                    {selectedDevice && deviceData && (
+                    {selectedDevice && (selectedDevice.id === 'all' ? allDevicesData : deviceData) && (
                         <>
                             <div className="device-info">
                                 <h2>Device Information</h2>
-                                <div className="info-item">
-                                    <span className="info-label">Device ID:</span>
-                                    <span className="info-value">{selectedDevice.id}</span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Location:</span>
-                                    <span className="info-value">{selectedDevice.location}</span>
-                                </div>
-                                <div className="info-item">
-                                    <span className="info-label">Status:</span>
-                                    <span className={`info-value status-${selectedDevice.status.toLowerCase()}`}>
-                                        {selectedDevice.status}
-                                    </span>
-                                </div>
+                                {selectedDevice.id === 'all' ? (
+                                    <div className="info-item">
+                                        <span className="info-label">Total Devices:</span>
+                                        <span className="info-value">{devices.length}</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="info-item">
+                                            <span className="info-label">Device ID:</span>
+                                            <span className="info-value">{selectedDevice.id}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Location:</span>
+                                            <span className="info-value">{selectedDevice.location}</span>
+                                        </div>
+                                        <div className="info-item">
+                                            <span className="info-label">Status:</span>
+                                            <span className={`info-value status-${selectedDevice.status.toLowerCase()}`}>
+                                                {selectedDevice.status}
+                                            </span>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Data Visualizations */}
                             <div className="data-visualizations">
                                 {/* Line Chart */}
                                 <div className="chart-container">
-                <h2>{selectedDevice.name} Monthly Fall Percentage</h2>
-                <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={deviceData.lineChart}>
-                        <XAxis 
-                            dataKey="name" 
-                            stroke="#ffffff"
-                            tickFormatter={(tick) => {
-                                const [year, month] = tick.split('-');
-                                return `${month}/${year.slice(2)}`;
-                            }}
-                        />
-                        <YAxis 
-                            stroke="#ffffff"
-                            tickFormatter={(tick) => `${tick}%`}
-                        />
-                        <Tooltip 
-                            formatter={(value) => [`${value.toFixed(2)}%`, 'Fall Percentage']}
-                            labelFormatter={(label) => {
-                                const [year, month] = label.split('-');
-                                return `${month}/${year}`;
-                            }}
-                        />
-                        <Line 
-                            type="monotone" 
-                            dataKey="value" 
-                            stroke="#3b82f6" 
-                            strokeWidth={2} 
-                            dot={false}
-                        />
-                    </LineChart>
-                </ResponsiveContainer>
-            </div>
+                                    <h2>{selectedDevice.name} Monthly Fall Percentage</h2>
+                                    <ResponsiveContainer width="100%" height={200}>
+                                        <LineChart data={selectedDevice.id === 'all' ? allDevicesData.lineChart : deviceData.lineChart}>
+                                            <XAxis 
+                                                dataKey="name" 
+                                                stroke="#ffffff"
+                                                tickFormatter={(tick) => {
+                                                    const [year, month] = tick.split('-');
+                                                    return `${month}/${year.slice(2)}`;
+                                                }}
+                                            />
+                                            <YAxis 
+                                                stroke="#ffffff"
+                                                tickFormatter={(tick) => `${tick}%`}
+                                            />
+                                            <Tooltip 
+                                                formatter={(value) => [`${value.toFixed(2)}%`, 'Fall Percentage']}
+                                                labelFormatter={(label) => {
+                                                    const [year, month] = label.split('-');
+                                                    return `${month}/${year}`;
+                                                }}
+                                            />
+                                            <Line 
+                                                type="monotone" 
+                                                dataKey="value" 
+                                                stroke="#3b82f6" 
+                                                strokeWidth={2} 
+                                                dot={false}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
 
                                 {/* Pie Chart */}
                                 <div className="chart-container">
-                                    <h2>{selectedDevice.name} Pie Chart</h2>
+                                    <h2>{selectedDevice.name} Pie Chart (Fall & Non-Fall)</h2>
                                     <ResponsiveContainer width="100%" height={200}>
                                         <PieChart>
                                             <Pie
-                                                data={deviceData.pieChart}
+                                                data={selectedDevice.id === 'all' ? allDevicesData.pieChart : deviceData.pieChart}
                                                 cx="50%"
                                                 cy="50%"
                                                 labelLine={false}
@@ -278,7 +321,7 @@ const Dashboard = () => {
                                                 fill="#8884d8"
                                                 dataKey="value"
                                             >
-                                                {deviceData.pieChart.map((entry, index) => (
+                                                {(selectedDevice.id === 'all' ? allDevicesData.pieChart : deviceData.pieChart).map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                 ))}
                                             </Pie>
@@ -289,56 +332,57 @@ const Dashboard = () => {
 
                                 {/* Table */}
                                 <div className="table-container">
-                <h2>{selectedDevice.name} Table Data</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            {['id', 'timestamp', 'value', 'category', 'label', 'area'].map((key) => (
-                                <th key={key} onClick={() => sortData(key)}>
-                                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                                    {sortConfig.key === key && (
-                                        sortConfig.direction === 'ascending' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+                                    <h2>{selectedDevice.name} Table Data</h2>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                {['id', 'timestamp', 'value', 'category', 'label', 'area', 'deviceId'].map((key) => (
+                                                    <th key={key} onClick={() => sortData(key)}>
+                                                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                                                        {sortConfig.key === key && (
+                                                            sortConfig.direction === 'ascending' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
                                     )}
                                 </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {getPaginatedData().map((row) => (
-                            <tr key={row.id}>
-                                <td>{row.id}</td>
-                                <td>{new Date(row.timestamp).toLocaleString()}</td>
-                                <td>{row.value}</td>
-                                <td>{row.category}</td>
-                                <td>{row.label === 0 ? 'Non-Fall' : 'Fall'}</td>
-                                <td>{row.area}</td>
+                                ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div className="pagination">
-                    <button 
-                        onClick={() => handlePageChange(currentPage - 1)} 
-                        disabled={currentPage === 1}
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <span>{currentPage} of {totalPages}</span>
-                    <button 
-                        onClick={() => handlePageChange(currentPage + 1)} 
-                        disabled={currentPage === totalPages}
-                    >
-                        <ChevronRight size={20} />
-                    </button>
+                        </thead>
+                        <tbody>
+                            {getPaginatedData().map((row) => (
+                                <tr key={row.id}>
+                                    <td>{row.id}</td>
+                                    <td>{new Date(row.timestamp).toLocaleString()}</td>
+                                    <td>{row.value}</td>
+                                    <td>{row.category}</td>
+                                    <td>{row.label === 0 ? 'Non-Fall' : 'Fall'}</td>
+                                    <td>{row.area}</td>
+                                    <td>{row.deviceId}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="pagination">
+                        <button 
+                            onClick={() => handlePageChange(currentPage - 1)} 
+                            disabled={currentPage === 1}
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <span>{currentPage} of {totalPages}</span>
+                        <button 
+                            onClick={() => handlePageChange(currentPage + 1)} 
+                            disabled={currentPage === totalPages}
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
+        </>
+    )}
+</div>
+</div>
+</div>
+);
 };
 
 export default Dashboard;

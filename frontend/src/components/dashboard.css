@@ -132,7 +132,6 @@ body {
 }
 
 .device-list {
-    width: 200px;
     background-color: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
@@ -143,13 +142,14 @@ body {
     background-color: var(--card-bg);
     border-radius: 10px;
     padding: 20px;
-    min-width: 250px;
+    min-width: 390px;
+    font-size: x-large;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
-  margin: 10px 20px;
+  margin: 20px 20px;
   
 }
 
@@ -269,7 +269,13 @@ body {
     .device-list, .device-info {
         flex-basis: 100%;
     }
-
+    .info-label {
+     font-size: medium;
+    }
+    
+    .info-value {
+      font-size: medium;
+    }
     .chart-container {
         flex-basis: 100%;
     }
@@ -369,26 +375,42 @@ th {
   .sidebar.open {
       transform: translateX(60px);
   }
+  
+}
+
+@media (max-width: 611px) {
   .chart-container, .table-container {
     width: 100%;
+    padding: 0px;
+    font-size: small;
   }
 }
-@media (max-width: 526px) {
-  .chart-container, .table-container {
-    padding: 10px;
-  }
 
+@media (max-width: 430px) {
   .data-visualizations {
     gap: 10px;
   }
-
-  .table-container table {
-    font-size: 14px;
+  .device-list {
+    max-width: 390px;
+    min-width: 300px;
   }
-
+  .device-info{
+    max-width: 390px;
+    padding: 0%;
+    min-width: 300px;
+  }
+  .chart-container, .table-container {
+    max-width: 390px;
+    padding: 0px;
+    font-size: small;
+  }
   .table-container th,
   .table-container td {
     padding: 8px 5px;
+    font-size: smaller;
+  }
+  tspan{
+    font-size: small;
   }
 }
 /* Sidebar overlay */

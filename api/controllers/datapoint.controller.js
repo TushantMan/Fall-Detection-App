@@ -95,10 +95,8 @@ exports.delete = (req, res) => {
 };
 
 // Generate dummy data points
-// Generate dummy data points
 exports.generateDummyData = async (req, res) => {
   const deviceId = req.params.deviceId;
-  const areas = ["North", "South", "East", "West"];
   const categories = [
     { value: 1, name: "Standby", label: 0 },
     { value: 6, name: "Fast Fall", label: 1 },
@@ -107,7 +105,9 @@ exports.generateDummyData = async (req, res) => {
   ];
 
   const getRandomElement = (array) => array[Math.floor(Math.random() * array.length)];
-
+  function getRandomDate(start, end) {
+    return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
+  }
   try {
     const device = await Device.findByPk(deviceId);
     if (!device) {
@@ -130,7 +130,6 @@ exports.generateDummyData = async (req, res) => {
       }
 
       try {
-        // Check if the device is still not paused before generating a data point
         const updatedDevice = await Device.findByPk(deviceId);
         if (!updatedDevice) {
           console.log(`Device ${deviceId} not found. Stopping data generation.`);
@@ -145,18 +144,19 @@ exports.generateDummyData = async (req, res) => {
         }
 
         const category = getRandomElement(categories);
+        const randomDate = getRandomDate(new Date(2024, 0, 1), new Date());
+
         const dataPoint = await DataPoint.create({
           deviceId: device.id,
-          timestamp: new Date(),
+          timestamp: randomDate,
           value: category.value,
           category: category.name,
           label: category.label,
-          area: getRandomElement(areas)
+          area: device.location  // Use the device's location as the area
         });
         console.log("Generated data point:", dataPoint);
 
         if (dataPoint.value === 6 || dataPoint.value === 7) {
-          // TODO: Send notification for the relevant data point
           console.log("Sending notification for data point:", dataPoint);
         }
 
@@ -175,7 +175,6 @@ exports.generateDummyData = async (req, res) => {
     });
   }
 };
-
 // Get the latest data point for a specific device
 exports.getLatestDataPoint = async (req, res) => {
   const deviceId = req.params.deviceId;
