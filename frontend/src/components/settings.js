@@ -290,7 +290,7 @@ const Settings = () => {
                                                     <span className="info-value">{device.location}</span>
                                                 </div>
                                                 <div className="info-item">
-                                                    <span className="info-label">Status:</span>
+                                                    <span className="info-label">Connection:</span>
                                                     <span className={`info-value status-${device.status.toLowerCase()}`}>
                                                         {device.status}
                                                     </span>

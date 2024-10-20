@@ -5,18 +5,21 @@
     --sidebar-bg: #000;
     --sidebar-icon: #fff;
     --sidebar-icon-hover: #3b82f6;
-    --card-bg: #2c2c2c;
-    --table-header-bg: #3c3c3c;
-    --table-row-even: #2a2a2a;
-    --table-row-hover: #333333;
+    --card-bg: rgba(17, 25, 40, 0.75);
+    --table-header-bg: rgba(17, 25, 40, 0.75);
+    --table-row-even: rgba(17, 25, 40, 0.75);
+    --table-row-hover: rgba(17, 25, 40, 0.75);
     --button-bg: #3b82f6;
     --button-text: #ffffff;
     --button-hover: #2563eb;
-    --button-disabled: #9ca3af;
+    --button-disabled: rgba(120, 120, 120, 0.35);
     --alert-badge: #ef4444;
     --active-status: #4ade80;
     --inactive-status: #f87171;
     --maintenance-status: #fbbf24;
+    --border: rgba(255, 255, 255, 0.125);
+    --gradient: radial-gradient(at 47% 33%, hsl(212.37, 72%, 59%) 0, transparent 59%),
+              radial-gradient(at 82% 65%, hsl(218.00, 39%, 11%) 0, transparent 55%);
 }
 
 .light-mode {
@@ -37,6 +40,7 @@
     --active-status: #4ade80;
     --inactive-status: #f87171;
     --maintenance-status: #fbbf24;
+    --border: rgba(0, 0, 0, 0.3);
 }
 
 .search-page {
@@ -97,7 +101,7 @@
 .search-container {
     display: flex;
     margin-bottom: 20px;
-    background-color: var(--bg-color);
+    background-color: var(--gradient);
 }
 
 .search-input-container {
@@ -118,21 +122,23 @@
     width: 100%;
     padding: 10px 10px 10px 40px;
     font-size: 16px;
-    border: 1px solid #444;
+    border: 1px solid;
     border-radius: 5px;
     background-color: var(--card-bg);
     color: var(--text-color);
-    border-color: var(--text-color);
+    border-color: var(--border);
+    backdrop-filter: blur(16px) saturate(180%);
 }
 
 .device-select {
     padding: 10px;
     font-size: 16px;
-    border: 1px solid #444;
+    border: 1px solid;
     border-radius: 5px;
     background-color: var(--card-bg);
     color: var(--text-color);
-    border-color: var(--text-color);
+    border-color: var(--border);
+    backdrop-filter: blur(16px) saturate(180%);
 }
 .search-results {
     overflow-x: auto; /* Add horizontal scroll for small screens */

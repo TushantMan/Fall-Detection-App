@@ -1,12 +1,15 @@
 :root {
-  --profile-bg: #2c2c2c;
+  --profile-bg: rgba(17, 25, 40, 0.75);
   --profile-text: #ffffff;
   --profile-border: #3b82f6;
   --profile-active-icon: #3b82f6;
+  --gradient: radial-gradient(at 47% 33%, hsl(212.37, 72%, 59%) 0, transparent 59%),
+              radial-gradient(at 82% 65%, hsl(218.00, 39%, 11%) 0, transparent 55%);
+  --border: rgba(0, 0, 0, 0.3);
 }
 
 .light-mode {
-  --profile-bg: #ffffff;
+  --profile-bg: rgba(255, 255, 255, 0.45);
   --profile-text: #333333;
   --profile-border: #3b82f6;
   --profile-active-icon: #3b82f6;
@@ -150,6 +153,7 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
+    background: var(--gradient);
   }
 .profile-content {
     background-color: var(--profile-bg);
@@ -159,6 +163,7 @@ body {
     width: 100%;
     max-width: 400px;
     display: flex;
+    border: 1px solid var(--border);
     flex-direction: column;
     align-items: center;
     transition: background-color 0.3s, color 0.3s;

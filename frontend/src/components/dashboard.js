@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,BarChart, Bar, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell,BarChart, Bar } from 'recharts';
 import { Database, Search, Bell, Settings, User, Menu, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -8,7 +8,7 @@ import { ThemeContext } from '../context/themeContext';
 import FallMap from './fallmap';
 import "./dashboard.css";
 
-const COLORS = ['#FF0000', '#0088FE', '#00ff40','#eeff00'];
+const COLORS = ['rgba( 255, 0, 0, 0.8 )', 'rgba(0, 89, 255, 0.8)', '#00ff40','#eeff00'];
 const ITEMS_PER_PAGE = 10;
 
 const AREA_COORDINATES = {
@@ -289,7 +289,7 @@ const Dashboard = () => {
                                             <span className="info-value">{selectedDevice.location}</span>
                                         </div>
                                         <div className="info-item">
-                                            <span className="info-label">Status:</span>
+                                            <span className="info-label">Connection:</span>
                                             <span className={`info-value status-${selectedDevice.status.toLowerCase()}`}>
                                                 {selectedDevice.status}
                                             </span>
@@ -366,8 +366,7 @@ const Dashboard = () => {
                                                 <XAxis dataKey="area" />
                                                 <YAxis />
                                                 <Tooltip />
-                                                <Legend />
-                                                <Bar dataKey="falls" fill="#8884d8">
+                                                <Bar dataKey="falls" fill="#000">
                                                     {areaFallData.map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                     ))}
