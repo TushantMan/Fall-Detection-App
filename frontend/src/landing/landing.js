@@ -109,12 +109,10 @@ const LandingPage = () => {
 
         <h1 className='main-stats scroll-reveal' ref={addToRefs}>Why Choose Fall Guys over Others</h1>
         <section className="stats scroll-reveal" ref={addToRefs} id='choose'>
-        
-          <div className="stat">
-            <Zap size={60} />
-            <h3>Real-Time Detection</h3>
-            <p>Instantly detects and alerts in case of a fall, ensuring rapid response.
-            </p>
+        <div className="stat">
+          <TabletSmartphone size={60}/>
+            <h3>Cross-Platform</h3>
+            <p>Accessible 24/7 on web, macOS, Windows, Linux, and Android.</p>
           </div>
           <div className="stat">
           <EyeOff size={60} />
@@ -122,9 +120,10 @@ const LandingPage = () => {
             <p>Non-invasive radar technology—no cameras or wearables required</p>
           </div>
           <div className="stat">
-          <TabletSmartphone size={60}/>
-            <h3>Cross-Platform</h3>
-            <p>Accessible 24/7 on web, macOS, Windows, Linux, and Android.</p>
+            <Zap size={60} />
+            <h3>Real-Time Detection</h3>
+            <p>Instantly detects and alerts in case of a fall, ensuring rapid response.
+            </p>
           </div>
         </section>
 
