@@ -1,11 +1,10 @@
-
 services:
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - 80:80
+      - "0.0.0.0:80:80"
     depends_on:
       - frontend
       - api
@@ -18,7 +17,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - "0.0.0.0:3000:3000"
     depends_on:
       - api
     volumes:
@@ -29,7 +28,7 @@ services:
       context: ./api
       dockerfile: Dockerfile
     ports:
-      - 5001:5001
+      - "0.0.0.0:5001:5001"
     volumes:
       - ./api:/app
     depends_on:
@@ -40,7 +39,7 @@ services:
   db:
     image: postgres:15.3-alpine3.18
     ports:
-      - 5432:5432
+      - "0.0.0.0:5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
