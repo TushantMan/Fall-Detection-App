@@ -7,7 +7,7 @@ import {getFirestore} from "firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBe7beT9OBEpHryKokfWaE3lJ2a4fasHG4",
+  apiKey: "Get you own API key",
   authDomain: "rt-fall-detection.firebaseapp.com",
   projectId: "rt-fall-detection",
   storageBucket: "rt-fall-detection.appspot.com",
